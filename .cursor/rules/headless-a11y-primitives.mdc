@@ -1,105 +1,127 @@
 ---
-description: HEADLESS ACCESSIBILITY PRIMITIVES RULESET (WCAG 2.2 AA – Behavior & Semantics Only)
+description: HEADLESS ACCESSIBILITY PRIMITIVES RULESET (WCAG 2.2 AA + WAI-ARIA 1.2 + Safe 1.3 Forward)
 globs: []
 alwaysApply: true
 ---
 
 # HEADLESS ACCESSIBILITY PRIMITIVES RULESET
-**(WCAG 2.2 AA – Behavior & Semantics Only)**
+**(WCAG 2.2 AA – Behavior & Semantics Only + WAI-ARIA 1.2 + Safe 1.3 Forward)**
 
 **0. GLOBAL ENFORCEMENT**  
 1. All generated primitives MUST follow this document exactly.  
 2. Any violation = immediate rejection and full regeneration.  
 3. WCAG 2.2 AA behavior and semantics are mandatory.  
 4. The library MUST NOT add any CSS, colors, spacing, layout, or design.  
-5. Only semantics, state, keyboard logic, and interaction are allowed.
+5. Only semantics, state, keyboard logic, focus management, and interaction are allowed.
 
 **1. SEMANTIC GUARANTEES**  
-1. Use native HTML elements first.  
+1. Use native HTML elements first ("No ARIA is better than bad ARIA").  
 2. ARIA only when native elements cannot do the job.  
 3. Every interactive item MUST be focusable when enabled.  
 4. Accessible name MUST come from visible text, aria-label, or aria-labelledby.  
 5. Support aria-describedby, aria-errormessage, and aria-invalid.  
-6. All ARIA MUST stay synced with React state at all times.
+6. All ARIA MUST stay perfectly synced with React state at all times.  
+7. Always add `data-state` attributes ("open" | "closed" | "active" | "inactive" etc.).
 
 **2. KEYBOARD INTERACTION GUARANTEES**  
-Follow WAI-ARIA Authoring Practices Guide 1.2 exactly for every widget.  
+Follow **WAI-ARIA Authoring Practices Guide 1.2 exactly** for every widget.  
 1. Tab and Shift+Tab in logical DOM order.  
 2. Enter and Space for activation.  
 3. Escape closes everything dismissible.  
 4. Arrow keys for menus, tabs, radios, composites.  
-5. Roving tabindex: only one tabindex="0".  
-6. For 3+ items: Home, End, Page Up, Page Down.  
+5. Roving tabindex: only one tabindex="0" at a time.  
+6. For 3+ items: Home, End, Page Up, Page Down where appropriate.  
 7. Type-to-jump with letter keys for long lists.  
 8. Skip disabled and hidden items.  
 9. Never use positive tabindex values.  
 10. For any widget: use the exact pattern from WAI-ARIA Authoring Practices Guide 1.2 section for that role.
 
-**3. FOCUS MANAGEMENT GUARANTEES**  
-For modals, popovers, dialogs:  
+**3. WAI-ARIA 1.3 FORWARD COMPATIBILITY (SAFE PRACTICES)**  
+WAI-ARIA 1.3 is still a Working Draft. Base everything on stable APG 1.2.  
+Safe to adopt immediately (without breaking 1.2 compatibility):  
+• Prefer `aria-description` for short descriptions when appropriate.  
+• Follow updated live-region timing and best practices.  
+• Support `aria-details` (can reference multiple IDs).  
+• Prepare for new roles (comment, suggestion, mark) but **do not use them yet** in production code.  
+• `aria-braillelabel` and `aria-brailleroledescription` only if explicitly requested.  
+All 1.3 features must remain optional and non-breaking.
+
+**4. FOCUS MANAGEMENT GUARANTEES**  
+For modals, popovers, dialogs, and menus:  
 1. Move focus to the first focusable item on open.  
 2. Trap focus inside the container.  
-3. Escape closes and returns focus to trigger.  
+3. Return focus to the trigger on close (Escape or outside click).  
 4. Never create keyboard traps.  
-5. For portals: always use React Portal and move focus after mount.  
-6. Expose focus state via attributes.
+5. For portals: always use React Portal and handle focus after mount.  
+6. Expose focus state via data attributes.
 
-**4. STATE & LIVE REGION GUARANTEES**  
-1. State is internal or controlled by props.  
-2. ARIA updates instantly.  
-3. Use aria-live="polite" by default for changes.  
-4. Announcements MUST be limited to maximum 10 words and only changed values.
+**5. STATE & LIVE REGION GUARANTEES**  
+1. State is internal or controlled via props.  
+2. ARIA attributes update instantly with state.  
+3. Use aria-live="polite" by default for status changes.  
+4. Announcements must be concise (max ~10 words) and only convey changed values.
 
-**5. DRAG AND DROP GUARANTEES**  
+**6. DRAG AND DROP GUARANTEES**  
 1. Always provide full keyboard alternative.  
-2. Arrow keys for reordering.  
-3. Announce start, position, and drop.  
-4. No deprecated ARIA (no aria-grabbed).
+2. Use arrow keys for reordering.  
+3. Announce start, current position, and drop result.  
+4. Do not use deprecated ARIA (no aria-grabbed).
 
-**6. USER PREFERENCE GUARANTEES**  
-1. Respect prefers-reduced-motion – never force animations.  
+**7. USER PREFERENCE GUARANTEES**  
+1. Respect prefers-reduced-motion.  
 2. Respect prefers-contrast and forced-colors mode.  
-3. Never override user contrast settings.
+3. Never override user contrast or motion settings.
 
-**7. INTERNATIONALIZATION & COMPOSABILITY**  
-1. No hardcoded text – all via props.  
+**8. INTERNATIONALIZATION & COMPOSABILITY**  
+1. No hardcoded strings – all text via props.  
 2. Full dir="rtl" support.  
-3. Handle text expansion and plurals.  
-4. Primitives MUST nest and combine without breaking focus or ARIA.
+3. Handle text expansion gracefully.  
+4. Primitives must be nestable and composable without breaking ARIA or focus.
 
-**8. SERVER RENDERING GUARANTEES**  
-1. Server HTML = client HTML.  
-2. No browser APIs on server.  
-3. No focus moves during SSR.
+**9. SERVER RENDERING GUARANTEES**  
+1. Server-rendered HTML must match client HTML.  
+2. No browser-only APIs during SSR.  
+3. No focus management on the server.
 
-**9. VIRTUALIZATION GUARANTEES**  
-1. Focus stays stable.  
+**10. VIRTUALIZATION GUARANTEES**  
+1. Focus position remains stable.  
 2. Correct aria-posinset and aria-setsize.  
-3. Keyboard and type-to-jump still work.  
-4. Announce position in huge lists.
+3. Keyboard navigation and type-to-search must continue to work.  
+4. Proper position announcements in large lists.
 
-**10. EXTRA SUPPORT**  
-1. Expose state, refs, and test helpers for keyboard and screen-reader tests.  
-2. Built-in utilities for focus, key events, and live-region checks.
+**11. EXTRA SUPPORT**  
+1. Expose refs, state, and helper utilities for testing.  
+2. Include built-in support for keyboard and live-region testing.
 
-**11. WHAT THE LIBRARY MUST NEVER DO**  
+**12. COMPOUND COMPONENT REQUIREMENTS**  
+Every multi-part primitive (Accordion, Tabs, etc.) MUST:  
+• Use React Context with a Provider.  
+• Properly forward refs.  
+• Correctly wire aria-controls, aria-labelledby, aria-expanded.  
+• Handle asChild on all sub-components safely.  
+• Never assume sub-components exist without proper context.
+
+**13. WHAT THE LIBRARY MUST NEVER DO**  
 - Add any CSS or visual styles  
-- Enforce target size or focus thickness  
-- Guarantee Lighthouse scores  
-- Override consumer styles
+- Enforce target size or focus indicator thickness  
+- Guarantee contrast or Lighthouse scores  
+- Override consumer styles or preferences
 
-**12. CONSUMER RESPONSIBILITIES**  
-Docs MUST clearly say the app owner handles:  
-1. Visible focus indicators  
-2. Minimum target size  
-3. Color contrast  
-4. Full page testing with real screen readers
+**14. CONSUMER RESPONSIBILITIES**  
+Clearly document that the consumer is responsible for:  
+1. Visible focus indicators (2.4.7)  
+2. Color contrast (1.4.3)  
+3. Target size (2.5.8)  
+4. Full page + real screen reader testing
 
 **PRIORITY ORDER**  
-1. WCAG 2.2 AA rules  
+1. WCAG 2.2 AA  
 2. Native HTML first  
-3. Keyboard first  
+3. APG 1.2 (with safe 1.3 forward practices)  
 4. Maximum consumer flexibility
 
 **REJECTION CONDITION**  
-Any code that breaks any rule above MUST be rejected and regenerated until perfect.
+Any code that breaks any rule above (especially missing Provider in compound components, incomplete APG 1.2 patterns, or incorrect ARIA) MUST be rejected and fully regenerated until it is perfect.
+
+When generating or regenerating code, always append this line at the bottom of your response:
+"Accessibility compliance: WCAG 2.2 AA semantics + APG 1.2 with safe WAI-ARIA 1.3 forward practices."

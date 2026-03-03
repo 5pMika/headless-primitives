@@ -1,6 +1,7 @@
 export { Slot, mergeProps } from './utils/slot';
 export type { SlotProps } from './utils/slot';
 export { useSlotId } from './utils/useId';
+export { usePrefersReducedMotion } from './utils/usePrefersReducedMotion';
 export { Button } from './primitives/button';
 export type { ButtonProps } from './primitives/button';
 export { Accordion } from './primitives/accordion';

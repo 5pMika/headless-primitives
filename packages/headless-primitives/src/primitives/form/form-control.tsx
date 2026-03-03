@@ -80,6 +80,7 @@ export const FormControl = React.forwardRef<HTMLInputElement, FormControlProps>(
       id: _id,
       name: _name,
       'aria-describedby': _ariaDesc,
+      'aria-errormessage': _ariaErrMsg,
       'aria-invalid': _ariaInv,
       ...restProps
     } = props as React.InputHTMLAttributes<HTMLInputElement> & Record<string, unknown>;
@@ -88,7 +89,8 @@ export const FormControl = React.forwardRef<HTMLInputElement, FormControlProps>(
       ref: composedRef,
       id: field.controlId,
       name: field.name,
-      'aria-describedby': field.messageId,
+      ...(field.hasMessage && { 'aria-describedby': field.messageId }),
+      ...(field.invalid && field.hasMessage && { 'aria-errormessage': field.messageId }),
       'aria-invalid': field.invalid,
       'data-invalid': field.invalid ? '' : undefined,
       'data-valid': !field.invalid ? '' : undefined,

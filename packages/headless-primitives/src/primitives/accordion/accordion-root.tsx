@@ -99,6 +99,7 @@ export const AccordionRoot = React.forwardRef<HTMLDivElement, AccordionRootProps
       ref,
       'data-orientation': orientation,
       dir,
+      ...(type === 'multiple' && { 'aria-multiselectable': true as const }),
       ...props,
     };
 
@@ -107,7 +108,13 @@ export const AccordionRoot = React.forwardRef<HTMLDivElement, AccordionRootProps
       if (!React.isValidElement(child)) {
         return (
           <AccordionContext.Provider value={contextValue}>
-            <div ref={ref} data-orientation={orientation} dir={dir} {...props}>
+            <div
+              ref={ref}
+              data-orientation={orientation}
+              dir={dir}
+              {...(type === 'multiple' && { 'aria-multiselectable': true })}
+              {...props}
+            >
               {children}
             </div>
           </AccordionContext.Provider>
@@ -126,7 +133,13 @@ export const AccordionRoot = React.forwardRef<HTMLDivElement, AccordionRootProps
 
     return (
       <AccordionContext.Provider value={contextValue}>
-        <div ref={ref} data-orientation={orientation} dir={dir} {...props}>
+        <div
+          ref={ref}
+          data-orientation={orientation}
+          dir={dir}
+          {...(type === 'multiple' && { 'aria-multiselectable': true })}
+          {...props}
+        >
           {children}
         </div>
       </AccordionContext.Provider>

@@ -79,6 +79,7 @@ All standard `HTMLButtonElement` attributes are supported on the trigger via `..
 
 - Trigger must have an accessible name: visible text, `aria-label`, or `aria-labelledby`
 - The file input is hidden from assistive tech; the trigger is the interactive element
+- The hidden input uses a visually-hidden (sr-only) style pattern for accessibility: it remains in the DOM for form submission and programmatic activation but is not visible or focusable. This is a semantic/accessibility exception, not design CSS.
 
 ### Consumer Responsibilities
 

@@ -41,6 +41,9 @@ export interface FormFieldContextValue {
   invalid: boolean;
   serverInvalid: boolean;
   setInvalid: (invalid: boolean) => void;
+  hasMessage: boolean;
+  registerMessage: () => void;
+  unregisterMessage: () => void;
 }
 
 export const FormContext = React.createContext<FormContextValue | null>(null);

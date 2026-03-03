@@ -40,10 +40,20 @@ export const FormMessage = React.forwardRef<HTMLSpanElement, FormMessageProps>(
       throw new Error('Form.Message must be used within Form.Field or have a name prop when outside');
     }
 
-    const [shouldShow, setShouldShow] = React.useState(false);
+    React.useEffect(() => {
+      if (field) {
+        field.registerMessage();
+        return () => field.unregisterMessage();
+      }
+    }, [field]);
+
     const [controlInvalid, setControlInvalid] = React.useState(false);
     const fieldInvalid = field?.invalid ?? controlInvalid;
     const serverInvalid = field?.serverInvalid ?? false;
+
+    const [shouldShow, setShouldShow] = React.useState(() =>
+      forceMatch || (!match && (fieldInvalid || serverInvalid))
+    );
 
     React.useEffect(() => {
       if (typeof window === 'undefined') return;

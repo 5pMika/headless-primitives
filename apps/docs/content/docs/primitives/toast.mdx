@@ -146,7 +146,7 @@ Data attributes: none. Renders as `ol` with `role="region"`.
 
 Data attributes: `data-state` (open/closed), `data-swipe` (start/move/cancel/end), `data-swipe-direction` (up/down/left/right).
 
-CSS variables (for swipe animation): `--radix-toast-swipe-move-x`, `--radix-toast-swipe-move-y`, `--radix-toast-swipe-end-x`, `--radix-toast-swipe-end-y`.
+CSS variables (for swipe animation): `--radix-toast-swipe-move-x`, `--radix-toast-swipe-move-y`, `--radix-toast-swipe-end-x`, `--radix-toast-swipe-end-y`. These are values for consumer-driven animations only; the primitive does not apply visual styles. Consumers should respect `prefers-reduced-motion` when applying animations based on these variables.
 
 ### Toast.Title
 
@@ -209,6 +209,10 @@ CSS variables (for swipe animation): `--radix-toast-swipe-move-x`, `--radix-toas
       type: 'boolean',
       default: 'false',
     },
+    ariaLabel: {
+      description: 'Accessible name for the close button. Required when using icon-only close (no visible text).',
+      type: 'string',
+    },
     ref: {
       description: 'Forwarded to root element',
       type: 'React.Ref<HTMLButtonElement>',
@@ -235,7 +239,7 @@ CSS variables (for swipe animation): `--radix-toast-swipe-move-x`, `--radix-toas
 
 - Root: `role="status"`, `aria-live` (assertive for foreground, polite for background), `aria-atomic="true"`
 - Action: `altText` is required — provide alternative instruction (e.g. "Undo via Alt+U")
-- Close: Consumer must provide accessible label (e.g. "Dismiss")
+- Close: Provide visible text or `ariaLabel` prop (required for icon-only close buttons)
 
 ### Consumer Responsibilities
 
@@ -288,6 +292,12 @@ You must provide:
     <Toast.Close>Dismiss</Toast.Close>
   </Toast.Root>
 </Toast.Provider>
+```
+
+For icon-only close buttons, pass `ariaLabel`:
+
+```tsx
+<Toast.Close ariaLabel="Dismiss">×</Toast.Close>
 ```
 
 ### Custom Duration
@@ -380,8 +390,17 @@ Use `data-swipe` and CSS variables for swipe-to-close animation:
 </Toast.Provider>
 ```
 
+## Internationalization
+
+All user-facing strings must be provided via props for localization:
+
+- **Toast.Provider `label`** — Default `"Notification"` is used for the region's accessible name. Pass a localized string for i18n.
+- **Toast.Viewport `label`** — Default `"Notifications ({hotkey})"` uses `{hotkey}` placeholder. Pass a localized template (e.g. `t('toast.viewportLabel', { hotkey: 'F8' })`) for i18n.
+- **Toast.Close `ariaLabel`** — When using icon-only close, pass a localized string (e.g. `t('toast.close')`).
+
 ## Edge Cases
 
+- **prefers-reduced-motion:** Auto-dismiss is disabled when the user prefers reduced motion. The toast remains until manually closed.
 - **forceMount:** When true, the toast stays in the DOM when closed. Use for exit animations. Apply `aria-hidden` and `hidden` when closed.
 - **foreground vs background:** Use `type="foreground"` for user-action toasts (announced immediately). Use `type="background"` for background task toasts (announced when screen reader is idle).
 - **altText on Action:** Required. Provide an alternative way to act (e.g. keyboard shortcut or permanent UI location).

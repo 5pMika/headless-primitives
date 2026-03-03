@@ -1,6 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { mergeProps } from '../../utils/slot';
+import { usePrefersReducedMotion } from '../../utils/usePrefersReducedMotion';
 import { useToastContext } from './context';
 import { ToastRootContext } from './context';
 
@@ -57,8 +58,10 @@ export const ToastRoot = React.forwardRef<HTMLDivElement, ToastRootProps>(
   ) {
     const { viewportRef, duration: contextDuration, swipeDirection, swipeThreshold } =
       useToastContext();
+    const prefersReducedMotion = usePrefersReducedMotion();
 
     const duration = durationProp ?? contextDuration;
+    const effectiveDuration = prefersReducedMotion ? 0 : duration;
 
     const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
     const isControlled = openProp !== undefined;
@@ -96,12 +99,12 @@ export const ToastRoot = React.forwardRef<HTMLDivElement, ToastRootProps>(
 
     const startTimer = React.useCallback(() => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      if (!open || isPausedRef.current || duration <= 0) return;
+      if (!open || isPausedRef.current || effectiveDuration <= 0) return;
       timerRef.current = setTimeout(() => {
         handleOpenChange(false);
         timerRef.current = null;
-      }, duration);
-    }, [open, duration, handleOpenChange]);
+      }, effectiveDuration);
+    }, [open, effectiveDuration, handleOpenChange]);
 
     const clearTimer = React.useCallback(() => {
       if (timerRef.current) {

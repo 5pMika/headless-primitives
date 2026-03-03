@@ -4,10 +4,12 @@ import { useToastRootContext } from './context';
 
 export interface ToastCloseProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean;
+  /** Accessible name for the close button. Required when using icon-only close (no visible text). */
+  ariaLabel?: string;
 }
 
 export const ToastClose = React.forwardRef<HTMLButtonElement, ToastCloseProps>(
-  function ToastClose({ asChild = false, children, onClick, ...props }, ref) {
+  function ToastClose({ asChild = false, ariaLabel, children, onClick, ...props }, ref) {
     const { onClose } = useToastRootContext();
 
     const handleClick = React.useCallback(
@@ -23,6 +25,7 @@ export const ToastClose = React.forwardRef<HTMLButtonElement, ToastCloseProps>(
       type: 'button' as const,
       onClick: handleClick,
       ...props,
+      ...(ariaLabel && { 'aria-label': ariaLabel }),
     };
 
     if (asChild) {

@@ -21,11 +21,22 @@ export const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
     const messageId = useSlotId();
 
     const [controlInvalid, setControlInvalid] = React.useState(false);
+    const [messageCount, setMessageCount] = React.useState(0);
     const invalid = serverInvalid || controlInvalid;
 
     const setInvalid = React.useCallback((value: boolean) => {
       setControlInvalid(value);
     }, []);
+
+    const registerMessage = React.useCallback(() => {
+      setMessageCount((c) => c + 1);
+    }, []);
+
+    const unregisterMessage = React.useCallback(() => {
+      setMessageCount((c) => Math.max(0, c - 1));
+    }, []);
+
+    const hasMessage = messageCount > 0;
 
     const fieldContextValue: FormFieldContextValue = React.useMemo(
       () => ({
@@ -36,8 +47,22 @@ export const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
         invalid,
         serverInvalid,
         setInvalid,
+        hasMessage,
+        registerMessage,
+        unregisterMessage,
       }),
-      [name, controlId, labelId, messageId, invalid, serverInvalid, setInvalid]
+      [
+        name,
+        controlId,
+        labelId,
+        messageId,
+        invalid,
+        serverInvalid,
+        setInvalid,
+        hasMessage,
+        registerMessage,
+        unregisterMessage,
+      ]
     );
 
     const fieldProps = {
