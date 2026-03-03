@@ -1,0 +1,120 @@
+---
+title: Button
+description: A minimal headless button primitive with core props
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# Button
+
+## Overview
+
+Button is a minimal headless primitive that wraps the native HTML `<button>` element. It provides core props (disabled, asChild, ref, id) and full HTML/ARIA forwarding. Use it for action triggers—submit, cancel, open dialog, etc.
+
+**Anatomy:** Single part (Root = the button itself).
+
+## API
+
+<TypeTable
+  type={{
+    asChild: {
+      description:
+        'When true, merges props onto the single child via cloneElement instead of rendering a button',
+      type: 'boolean',
+      default: 'false',
+    },
+    disabled: {
+      description: 'Prevents interaction and sets aria-disabled',
+      type: 'boolean',
+      default: 'false',
+    },
+    id: {
+      description: 'Auto-generated via useId if omitted. Used for ARIA linking.',
+      type: 'string',
+    },
+    ref: {
+      description: 'Forwarded to the root element or child when asChild',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+All standard `HTMLButtonElement` attributes are supported via `...props`.
+
+## Accessibility
+
+### Keyboard
+
+- **Enter** / **Space** — Activates the button (native behavior)
+- **Tab** / **Shift+Tab** — Moves focus (native behavior)
+
+### Focus
+
+- Button is focusable when not disabled
+- Focus order follows DOM order
+
+### Screen Reader
+
+- Native `<button>` has implicit `role="button"`
+- Accessible name from visible text, `aria-label`, or `aria-labelledby`
+- Supports `aria-describedby`, `aria-errormessage`, `aria-invalid` via props
+
+### Consumer Responsibilities
+
+You must provide:
+
+- Visible focus indicators
+- Minimum target size (44x44px recommended)
+- Color contrast
+
+## Examples
+
+### Basic
+
+```tsx
+import { Button } from '@headless-primitives/core';
+
+<Button onClick={() => alert('Clicked')}>Click me</Button>;
+```
+
+### With asChild
+
+```tsx
+import { Button } from '@headless-primitives/core';
+
+<Button asChild>
+  <a href="/dashboard">Go to Dashboard</a>
+</Button>;
+```
+
+### Disabled
+
+```tsx
+import { Button } from '@headless-primitives/core';
+
+<Button disabled>Disabled</Button>;
+```
+
+The disabled state exposes `data-disabled` for styling:
+
+```css
+[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+```
+
+### With Tailwind
+
+```tsx
+import { Button } from '@headless-primitives/core';
+
+<Button className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
+  Submit
+</Button>;
+```
+
+## Edge Cases
+
+- **Form submission:** Button defaults to `type="button"` to avoid accidental form submission. Use `type="submit"` explicitly for submit buttons.
+- **asChild with non-button child:** When using `asChild` with an element that isn't natively focusable (e.g. `div`, `span`), ensure the child receives the merged props and can be activated (e.g. add `tabIndex={0}` and `role="button"` if needed). Prefer using a native button or anchor as child when possible.

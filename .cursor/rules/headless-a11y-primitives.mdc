@@ -1,0 +1,105 @@
+---
+description: HEADLESS ACCESSIBILITY PRIMITIVES RULESET (WCAG 2.2 AA – Behavior & Semantics Only)
+globs: []
+alwaysApply: true
+---
+
+# HEADLESS ACCESSIBILITY PRIMITIVES RULESET
+**(WCAG 2.2 AA – Behavior & Semantics Only)**
+
+**0. GLOBAL ENFORCEMENT**  
+1. All generated primitives MUST follow this document exactly.  
+2. Any violation = immediate rejection and full regeneration.  
+3. WCAG 2.2 AA behavior and semantics are mandatory.  
+4. The library MUST NOT add any CSS, colors, spacing, layout, or design.  
+5. Only semantics, state, keyboard logic, and interaction are allowed.
+
+**1. SEMANTIC GUARANTEES**  
+1. Use native HTML elements first.  
+2. ARIA only when native elements cannot do the job.  
+3. Every interactive item MUST be focusable when enabled.  
+4. Accessible name MUST come from visible text, aria-label, or aria-labelledby.  
+5. Support aria-describedby, aria-errormessage, and aria-invalid.  
+6. All ARIA MUST stay synced with React state at all times.
+
+**2. KEYBOARD INTERACTION GUARANTEES**  
+Follow WAI-ARIA Authoring Practices Guide 1.2 exactly for every widget.  
+1. Tab and Shift+Tab in logical DOM order.  
+2. Enter and Space for activation.  
+3. Escape closes everything dismissible.  
+4. Arrow keys for menus, tabs, radios, composites.  
+5. Roving tabindex: only one tabindex="0".  
+6. For 3+ items: Home, End, Page Up, Page Down.  
+7. Type-to-jump with letter keys for long lists.  
+8. Skip disabled and hidden items.  
+9. Never use positive tabindex values.  
+10. For any widget: use the exact pattern from WAI-ARIA Authoring Practices Guide 1.2 section for that role.
+
+**3. FOCUS MANAGEMENT GUARANTEES**  
+For modals, popovers, dialogs:  
+1. Move focus to the first focusable item on open.  
+2. Trap focus inside the container.  
+3. Escape closes and returns focus to trigger.  
+4. Never create keyboard traps.  
+5. For portals: always use React Portal and move focus after mount.  
+6. Expose focus state via attributes.
+
+**4. STATE & LIVE REGION GUARANTEES**  
+1. State is internal or controlled by props.  
+2. ARIA updates instantly.  
+3. Use aria-live="polite" by default for changes.  
+4. Announcements MUST be limited to maximum 10 words and only changed values.
+
+**5. DRAG AND DROP GUARANTEES**  
+1. Always provide full keyboard alternative.  
+2. Arrow keys for reordering.  
+3. Announce start, position, and drop.  
+4. No deprecated ARIA (no aria-grabbed).
+
+**6. USER PREFERENCE GUARANTEES**  
+1. Respect prefers-reduced-motion – never force animations.  
+2. Respect prefers-contrast and forced-colors mode.  
+3. Never override user contrast settings.
+
+**7. INTERNATIONALIZATION & COMPOSABILITY**  
+1. No hardcoded text – all via props.  
+2. Full dir="rtl" support.  
+3. Handle text expansion and plurals.  
+4. Primitives MUST nest and combine without breaking focus or ARIA.
+
+**8. SERVER RENDERING GUARANTEES**  
+1. Server HTML = client HTML.  
+2. No browser APIs on server.  
+3. No focus moves during SSR.
+
+**9. VIRTUALIZATION GUARANTEES**  
+1. Focus stays stable.  
+2. Correct aria-posinset and aria-setsize.  
+3. Keyboard and type-to-jump still work.  
+4. Announce position in huge lists.
+
+**10. EXTRA SUPPORT**  
+1. Expose state, refs, and test helpers for keyboard and screen-reader tests.  
+2. Built-in utilities for focus, key events, and live-region checks.
+
+**11. WHAT THE LIBRARY MUST NEVER DO**  
+- Add any CSS or visual styles  
+- Enforce target size or focus thickness  
+- Guarantee Lighthouse scores  
+- Override consumer styles
+
+**12. CONSUMER RESPONSIBILITIES**  
+Docs MUST clearly say the app owner handles:  
+1. Visible focus indicators  
+2. Minimum target size  
+3. Color contrast  
+4. Full page testing with real screen readers
+
+**PRIORITY ORDER**  
+1. WCAG 2.2 AA rules  
+2. Native HTML first  
+3. Keyboard first  
+4. Maximum consumer flexibility
+
+**REJECTION CONDITION**  
+Any code that breaks any rule above MUST be rejected and regenerated until perfect.

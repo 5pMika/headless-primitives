@@ -1,0 +1,389 @@
+---
+title: Toast
+description: A headless toast primitive for succinct temporary messages with auto-dismiss, swipe, and hotkey support
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Toast
+
+## Overview
+
+Toast is a headless multi-part primitive for temporary notification messages. It matches Radix UI's API: Provider, Viewport, Root, Title, Description, Action, and Close. Supports auto-dismiss, pause on hover/focus/blur, swipe-to-close, and F8 hotkey to focus the viewport.
+
+**Anatomy:** Provider → Viewport + Root(s). Each Root contains optional Title, Description, Action, and Close. Toasts are portaled into the Viewport.
+
+## API
+
+### Toast.Provider
+
+<TypeTable
+  type={{
+    duration: {
+      description: 'Default auto-dismiss duration in ms. Overridable per Root.',
+      type: 'number',
+      default: '5000',
+    },
+    label: {
+      description: 'Accessible label for the notification region',
+      type: 'string',
+      default: '"Notification"',
+    },
+    swipeDirection: {
+      description: 'Direction for swipe-to-close gesture',
+      type: '"up" | "down" | "left" | "right"',
+      default: '"right"',
+    },
+    swipeThreshold: {
+      description: 'Minimum swipe distance (px) to trigger close',
+      type: 'number',
+      default: '50',
+    },
+  }}
+/>
+
+### Toast.Viewport
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    hotkey: {
+      description: 'Key(s) to focus the viewport (e.g. F8)',
+      type: 'string[]',
+      default: '["F8"]',
+    },
+    label: {
+      description: 'aria-label for viewport. Use {hotkey} placeholder.',
+      type: 'string',
+      default: '"Notifications ({hotkey})"',
+    },
+    ref: {
+      description: 'Forwarded to root element',
+      type: 'React.Ref<HTMLOListElement>',
+    },
+  }}
+/>
+
+Data attributes: none. Renders as `ol` with `role="region"`.
+
+### Toast.Root
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    type: {
+      description: 'foreground = aria-live assertive (immediate). background = polite.',
+      type: '"foreground" | "background"',
+      default: '"foreground"',
+    },
+    duration: {
+      description: 'Override provider duration for this toast (ms)',
+      type: 'number',
+    },
+    defaultOpen: {
+      description: 'Uncontrolled initial open. Default true for Toast.',
+      type: 'boolean',
+      default: 'true',
+    },
+    open: {
+      description: 'Controlled open state',
+      type: 'boolean',
+    },
+    onOpenChange: {
+      description: 'Called when open state changes',
+      type: '(open: boolean) => void',
+    },
+    onEscapeKeyDown: {
+      description: 'Called when Escape is pressed before close',
+      type: '(event: KeyboardEvent) => void',
+    },
+    onPause: {
+      description: 'Called when timer pauses (hover, focus, window blur)',
+      type: '() => void',
+    },
+    onResume: {
+      description: 'Called when timer resumes',
+      type: '() => void',
+    },
+    onSwipeStart: {
+      description: 'Called when swipe gesture starts',
+      type: '(event: React.PointerEvent) => void',
+    },
+    onSwipeMove: {
+      description: 'Called during swipe',
+      type: '(event: React.PointerEvent) => void',
+    },
+    onSwipeEnd: {
+      description: 'Called when swipe ends',
+      type: '(event: React.PointerEvent) => void',
+    },
+    onSwipeCancel: {
+      description: 'Called when swipe is cancelled',
+      type: '(event: React.PointerEvent) => void',
+    },
+    forceMount: {
+      description: 'Keep in DOM when closed (aria-hidden, hidden)',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to root element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (open/closed), `data-swipe` (start/move/cancel/end), `data-swipe-direction` (up/down/left/right).
+
+CSS variables (for swipe animation): `--radix-toast-swipe-move-x`, `--radix-toast-swipe-move-y`, `--radix-toast-swipe-end-x`, `--radix-toast-swipe-end-y`.
+
+### Toast.Title
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to root element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+### Toast.Description
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to root element',
+      type: 'React.Ref<HTMLParagraphElement>',
+    },
+  }}
+/>
+
+### Toast.Action
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    altText: {
+      description: 'Required. Accessible label / alternative instruction for screen readers.',
+      type: 'string',
+    },
+    ref: {
+      description: 'Forwarded to root element',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+### Toast.Close
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to root element',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+## Accessibility
+
+### Keyboard
+
+- **F8** — Focus toast viewport (default hotkey)
+- **Tab** / **Shift+Tab** — Move focus between focusable elements
+- **Space** / **Enter** — Activate Action or Close (closes toast)
+- **Escape** — Close the focused toast
+
+### Focus
+
+- Viewport is focusable via hotkey (`tabIndex={-1}`)
+- No focus trap; toasts are non-modal
+- Action and Close buttons close the toast on activation
+
+### Screen Reader
+
+- Root: `role="status"`, `aria-live` (assertive for foreground, polite for background), `aria-atomic="true"`
+- Action: `altText` is required — provide alternative instruction (e.g. "Undo via Alt+U")
+- Close: Consumer must provide accessible label (e.g. "Dismiss")
+
+### Consumer Responsibilities
+
+You must provide:
+
+- Visible focus indicators
+- Minimum target size (44x44px recommended)
+- Color contrast
+- Hotkey discoverability (document F8 or custom hotkey)
+
+## Examples
+
+### Installation
+
+<Steps>
+  <Step>Install the package: ```bash pnpm add @headless-primitives/core react react-dom ```</Step>
+  <Step>Import and use: ```tsx import { Toast } from '@headless-primitives/core'; ```</Step>
+</Steps>
+
+### Basic
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    Basic toast with title and description. Auto-dismisses after 5 seconds.
+  </Tab>
+  <Tab value="Code">
+    ```tsx
+    import { Toast } from '@headless-primitives/core';
+
+    <Toast.Provider>
+      <Toast.Viewport />
+      <Toast.Root>
+        <Toast.Title>Saved!</Toast.Title>
+        <Toast.Description>Your changes have been saved.</Toast.Description>
+      </Toast.Root>
+    </Toast.Provider>
+    ```
+  </Tab>
+</Tabs>
+
+### With Action and Close
+
+```tsx
+<Toast.Provider>
+  <Toast.Viewport />
+  <Toast.Root>
+    <Toast.Title>File removed</Toast.Title>
+    <Toast.Description>File removed successfully.</Toast.Description>
+    <Toast.Action altText="Undo via Alt+U">Undo</Toast.Action>
+    <Toast.Close>Dismiss</Toast.Close>
+  </Toast.Root>
+</Toast.Provider>
+```
+
+### Custom Duration
+
+```tsx
+<Toast.Root duration={2000}>
+  <Toast.Title>Quick message</Toast.Title>
+</Toast.Root>
+```
+
+### Controlled
+
+```tsx
+const [open, setOpen] = useState(true);
+
+<Toast.Root open={open} onOpenChange={setOpen}>
+  <Toast.Title>Controlled toast</Toast.Title>
+  <Toast.Close>Dismiss</Toast.Close>
+</Toast.Root>
+```
+
+### Duplicate Toasts (State Pattern)
+
+When a toast must appear every time the user clicks, use state to render multiple instances:
+
+```tsx
+const [count, setCount] = useState(0);
+
+<Toast.Provider>
+  <Toast.Viewport />
+  <button onClick={() => setCount((c) => c + 1)}>Save</button>
+  {Array.from({ length: count }).map((_, i) => (
+    <Toast.Root key={i}>
+      <Toast.Title>Saved!</Toast.Title>
+    </Toast.Root>
+  ))}
+</Toast.Provider>
+```
+
+### Swipe Animation (CSS)
+
+Use `data-swipe` and CSS variables for swipe-to-close animation:
+
+```css
+[data-swipe="move"] {
+  transform: translateX(var(--radix-toast-swipe-move-x));
+}
+[data-swipe="cancel"] {
+  transform: translateX(0);
+  transition: transform 200ms ease-out;
+}
+[data-swipe="end"] {
+  animation: slideRight 100ms ease-out;
+}
+@keyframes slideRight {
+  from {
+    transform: translateX(var(--radix-toast-swipe-end-x));
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+```
+
+### Styling with data-state
+
+```css
+[data-state="open"] {
+  /* visible toast */
+}
+[data-state="closed"] {
+  /* hidden (when forceMount) */
+}
+```
+
+### With Tailwind
+
+```tsx
+<Toast.Provider>
+  <Toast.Viewport className="fixed bottom-0 right-0 z-50 flex flex-col gap-2 p-4" />
+  <Toast.Root className="rounded-lg border bg-white p-4 shadow-lg">
+    <Toast.Title className="font-semibold">Saved!</Toast.Title>
+    <Toast.Description className="text-sm text-gray-600">
+      Your changes have been saved.
+    </Toast.Description>
+    <Toast.Close className="mt-2 rounded px-2 py-1 hover:bg-gray-100">
+      Dismiss
+    </Toast.Close>
+  </Toast.Root>
+</Toast.Provider>
+```
+
+## Edge Cases
+
+- **forceMount:** When true, the toast stays in the DOM when closed. Use for exit animations. Apply `aria-hidden` and `hidden` when closed.
+- **foreground vs background:** Use `type="foreground"` for user-action toasts (announced immediately). Use `type="background"` for background task toasts (announced when screen reader is idle).
+- **altText on Action:** Required. Provide an alternative way to act (e.g. keyboard shortcut or permanent UI location).
+- **Viewport order:** Viewport must render before Root(s) so the portal target exists. Typical structure: Provider → Viewport → Root(s).
+- **Portal:** Toasts are portaled into the Viewport. If Viewport is not yet mounted, toast renders inline until the next render.

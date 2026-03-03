@@ -1,0 +1,86 @@
+---
+description: HARD RULES for documentation work. Fumadocs is the only docs framework. Lock to stable versions as of 2026-03-03. Headless primitives documentation standards enforced.
+alwaysApply: true
+---
+
+# Scope
+- Applies to ALL changes that touch documentation, docs tooling, or docs build output.
+- If the user asks to change docs tooling, follow these rules unless the user explicitly overrides them.
+
+# Version lock (as of 2026-03-03) — DO NOT CHANGE
+- MUST pin and keep aligned:
+  - fumadocs-core@16.6.8
+  - fumadocs-ui@16.6.8
+  - fumadocs-mdx@14.2.8
+- MUST pin scaffolder:
+  - create-fumadocs-app@16.0.63
+- MUST NOT widen versions (no ^, no ~) for fumadocs packages unless user explicitly says “upgrade fumadocs”.
+- MUST keep fumadocs-core and fumadocs-ui on the SAME version line.
+
+# Fumadocs compatibility rules
+- MUST treat Fumadocs packages as ESM-only.
+- MUST NOT add CommonJS patterns (no require(), no module.exports) in docs code.
+
+# Docs framework exclusivity
+- MUST NOT add or scaffold other docs frameworks (Docusaurus, Nextra, VitePress, MkDocs, etc.).
+- MUST NOT create a second docs site unless user explicitly asks.
+
+# Source of truth rules
+- MUST keep TypeScript source as the API source of truth.
+- MUST prefer AutoTypeTable (or TypeTable) over manual type definitions.
+- MUST NOT copy/paste large type definitions into docs pages.
+
+# Change control rules
+- MUST keep existing docs routing and folder layout.
+- MUST NOT rename routes, move folders, or redesign navigation unless user explicitly asks.
+- MUST keep changes minimal and focused on the requested task.
+
+# Required doc page sections (for NEW primitive pages)
+Every new page that documents a UI primitive, component, or hook MUST include these sections in this order:
+1. Overview
+2. API
+3. Accessibility
+4. Examples
+5. Edge cases
+
+Accessibility MUST include:
+- Keyboard support
+- Focus rules
+- Screen reader notes
+- Required roles/attributes/states
+- Known limits
+
+# Headless Primitive Documentation Standards (STRICT — MUST follow)
+These rules apply to EVERY primitive page in addition to the required sections above.
+
+## WHAT to document
+Every primitive MUST cover:
+- Anatomy (full list of sub-parts: Root, Trigger, Content, etc. + their roles/relationships)
+- Controlled vs Uncontrolled behavior (default values, state management)
+- Styling & Customization (all data-* attributes, className strategy, CSS variables, asChild support)
+- Composition patterns (how to combine with other primitives, slotting, real-world usage)
+- Installation & Import instructions
+- Full API/Props (type-derived)
+- Multiple real-world Examples
+- Edge cases & Gotchas
+
+## HOW to document using Fumadocs (as of 2026-03-03)
+- **API section**: Use `<AutoTypeTable>` (preferred) or `<TypeTable>` for auto-generated type tables
+- **Examples section**: Use `<Tabs>` (e.g. tabs for Basic / Controlled / Composition / Tailwind) with preview + code
+- **Installation**: Use `<Steps>` component
+- **Notes & warnings**: Use `<Callout type="info|warn|error">`
+- Always show data attributes (`data-state=open`, `data-disabled`, etc.) in code examples
+- Use Shiki-highlighted code blocks
+- Keep examples practical, Tailwind-friendly, and composable — never assume a specific styling solution
+- Import components from `fumadocs-ui/mdx` when needed
+
+# Build safety
+- MUST NOT claim tests/build ran unless you actually ran them.
+- MUST warn clearly if a change could break docs build or docs routing.
+
+# CRITICAL RULES (short)
+- Do not change Fumadocs versions.
+- Do not add other docs frameworks.
+- Do not add CommonJS docs code.
+- Do not change routes/layout without explicit user request.
+- Always follow Headless Primitive Documentation Standards for every primitive.

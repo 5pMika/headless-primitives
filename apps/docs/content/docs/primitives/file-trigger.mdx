@@ -1,0 +1,172 @@
+---
+title: FileTrigger
+description: A headless file input trigger that opens the native file picker via a customizable trigger element
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# FileTrigger
+
+## Overview
+
+FileTrigger is a native-first headless primitive that wraps the native HTML `<input type="file">` with a customizable trigger. Clicking the trigger opens the system file picker. Use it when you need a styled file upload button or want to trigger file selection from a custom element (e.g. a card, icon, or link).
+
+**Anatomy:** Single part — a visible trigger (button or asChild) plus a visually hidden file input. The trigger programmatically activates the input on click.
+
+## API
+
+<TypeTable
+  type={{
+    asChild: {
+      description:
+        'When true, merges props onto the single child via cloneElement instead of rendering a button',
+      type: 'boolean',
+      default: 'false',
+    },
+    disabled: {
+      description: 'Prevents interaction and sets aria-disabled on both trigger and input',
+      type: 'boolean',
+      default: 'false',
+    },
+    accept: {
+      description: 'File types to accept (e.g. "image/*", ".pdf"). Passed to the native input.',
+      type: 'string',
+    },
+    multiple: {
+      description: 'Allow multiple file selection. Passed to the native input.',
+      type: 'boolean',
+    },
+    capture: {
+      description:
+        'Capture mode for camera: "user" (front) or "environment" (back). Passed to the native input.',
+      type: 'string',
+    },
+    name: {
+      description: 'Name for form submission. Passed to the native input.',
+      type: 'string',
+    },
+    onChange: {
+      description: 'Called when files are selected. Use event.target.files to access the FileList.',
+      type: 'React.ChangeEventHandler<HTMLInputElement>',
+    },
+    id: {
+      description: 'Auto-generated via useId if omitted. Applied to the hidden input.',
+      type: 'string',
+    },
+    ref: {
+      description: 'Forwarded to the trigger element (button or child when asChild)',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+All standard `HTMLButtonElement` attributes are supported on the trigger via `...props`.
+
+## Accessibility
+
+### Keyboard
+
+- **Enter** / **Space** — Activates the trigger, which opens the file picker (native button behavior)
+- **Tab** / **Shift+Tab** — Moves focus (native behavior)
+
+### Focus
+
+- Trigger is focusable when not disabled
+- The hidden input has `aria-hidden` and `tabIndex={-1}` so it does not receive focus directly
+
+### Screen Reader
+
+- Trigger must have an accessible name: visible text, `aria-label`, or `aria-labelledby`
+- The file input is hidden from assistive tech; the trigger is the interactive element
+
+### Consumer Responsibilities
+
+You must provide:
+
+- Visible focus indicators on the trigger
+- Minimum target size (44x44px recommended)
+- Color contrast
+- Clear accessible name describing the file selection action
+
+## Examples
+
+### Installation
+
+<Steps>
+  <Step>Install the package: ```bash pnpm add @headless-primitives/core react react-dom ```</Step>
+  <Step>Import and use: ```tsx import {FileTrigger} from '@headless-primitives/core'; ```</Step>
+</Steps>
+
+### Basic
+
+```tsx
+import { FileTrigger } from '@headless-primitives/core';
+
+<FileTrigger
+  onChange={(e) => {
+    const files = e.target.files;
+    if (files?.length) console.log(files);
+  }}
+>
+  Choose file
+</FileTrigger>;
+```
+
+### With asChild and Button
+
+```tsx
+import { FileTrigger, Button } from '@headless-primitives/core';
+
+<FileTrigger asChild onChange={(e) => handleFiles(e.target.files)}>
+  <Button>Upload</Button>
+</FileTrigger>;
+```
+
+### Accept and Multiple
+
+```tsx
+import { FileTrigger } from '@headless-primitives/core';
+
+<FileTrigger accept="image/*" multiple onChange={(e) => setFiles(e.target.files)}>
+  Select images
+</FileTrigger>;
+```
+
+### Disabled
+
+```tsx
+import { FileTrigger } from '@headless-primitives/core';
+
+<FileTrigger disabled>Choose file</FileTrigger>;
+```
+
+The disabled state exposes `data-disabled` on the trigger for styling:
+
+```css
+[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+```
+
+### With Tailwind
+
+```tsx
+import { FileTrigger } from '@headless-primitives/core';
+
+<FileTrigger
+  className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
+  onChange={(e) => handleFiles(e.target.files)}
+>
+  Choose file
+</FileTrigger>;
+```
+
+## Edge Cases
+
+- **accept MIME types:** Use `accept="image/*"` for images, `accept=".pdf"` for PDFs, or comma-separated values. Browsers may ignore invalid values.
+- **multiple:** When `multiple` is true, `event.target.files` is a `FileList` with multiple items.
+- **capture for camera:** On mobile, `capture="user"` or `capture="environment"` opens the camera. Desktop behavior varies.
+- **Disabled state:** Both the trigger and the hidden input are disabled; the file picker will not open.
+- **Form integration:** Use the `name` prop to include the selected file(s) in form submission. The hidden input participates in the form.

@@ -1,0 +1,5 @@
+{
+  "title": "Primitives",
+  "description": "Headless UI primitives",
+  "pages": ["index", "button", "accordion", "file-trigger", "form", "toast"]
+}

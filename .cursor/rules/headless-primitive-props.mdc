@@ -1,0 +1,109 @@
+---
+description: HEADLESS PRIMITIVES PROPS API RULESET (Strict – Zero Interpretation Allowed)
+globs: []
+alwaysApply: true
+---
+
+# HEADLESS PRIMITIVES PROPS API RULESET
+**(Strict Prop Rules + WHY/WHEN/HOW + Applicability Rule – Zero Interpretation Allowed – Research-Backed March 3, 2026)**
+
+**0. GLOBAL ENFORCEMENT**  
+1. All generated primitives MUST follow this document exactly.  
+2. Any violation = immediate rejection and full regeneration.  
+3. This ruleset applies to every primitive in the library.  
+4. The API MUST exactly match Radix UI primitives (dominant standard). React Aria naming is FORBIDDEN.
+
+**PROP APPLICABILITY RULE (ZERO GUESSING ALLOWED)**  
+- Include a prop ONLY if it is required by the exact official Radix UI primitive of the same name (latest stable version).  
+- Never add or guess extra props.
+
+**1. CORE PROPS (HARD RULES – ONE PER PROP WITH WHY/WHEN/HOW)**  
+(These must be implemented exactly where the Radix primitive of the same name uses them.)
+
+1. **open?** (boolean | undefined)  
+   - WHY: Enables controlled mode for WCAG focus/ARIA.  
+   - WHEN: Every openable primitive (Dialog, Popover, DropdownMenu, etc.).  
+   - HOW: Controlled when provided; call onOpenChange on every change.
+
+2. **defaultOpen?** (boolean)  
+   - WHY: Uncontrolled initial state.  
+   - WHEN: With open.  
+   - HOW: Ignored if open present. Default = false.
+
+3. **onOpenChange?** ((open: boolean) => void)  
+   - WHY: Consumer notification.  
+   - WHEN: With open/defaultOpen.  
+   - HOW: Called with new value every time.
+
+4. **value?** (any)  
+   - WHY: Controlled selection.  
+   - WHEN: Tabs, Select, RadioGroup, ToggleGroup, etc.  
+   - HOW: Controlled when provided.
+
+5. **defaultValue?** (any)  
+   - WHY: Uncontrolled initial value.  
+   - WHEN: With value.  
+   - HOW: Ignored if value present.
+
+6. **onValueChange?** ((value: any) => void)  
+   - WHY: Consumer notification.  
+   - WHEN: With value/defaultValue.  
+   - HOW: Called with new value.
+
+7. **checked?** (boolean | undefined)  
+   - WHY: Controlled boolean state.  
+   - WHEN: Checkbox, Switch, Toggle.  
+   - HOW: Controlled when provided.
+
+8. **defaultChecked?** (boolean)  
+   - WHY: Uncontrolled initial checked.  
+   - WHEN: With checked.  
+   - HOW: Ignored if checked present.
+
+9. **onCheckedChange?** ((checked: boolean) => void)  
+   - WHY: Consumer notification.  
+   - WHEN: With checked/defaultChecked.  
+   - HOW: Called with new value.
+
+10. **disabled?** (boolean)  
+    - WHY: Prevents interaction + correct ARIA.  
+    - WHEN: EVERY interactive primitive.  
+    - HOW: Skip focus/events, aria-disabled="true". Default = false.
+
+11. **asChild** (boolean)  
+    - WHY: Polymorphic rendering.  
+    - WHEN: EVERY root primitive.  
+    - HOW: Default = false. When true: React.cloneElement on single child.
+
+12. **ref** (via React.forwardRef)  
+    - WHY: DOM access for focus/testing.  
+    - WHEN: EVERY primitive.  
+    - HOW: Forward to root (or child when asChild).
+
+13. **...props**  
+    - WHY: Full HTML/ARIA forwarding.  
+    - WHEN: EVERY primitive.  
+    - HOW: Spread all remaining attributes unchanged.
+
+14. **id?** (string)  
+    - WHY: ARIA linking.  
+    - WHEN: EVERY primitive.  
+    - HOW: Auto-generate with React.useId() if missing.
+
+**2. EXPORT RULE (MANDATORY)**  
+- EVERY primitive MUST export a TypeScript interface named exactly `ComponentNameProps` (e.g. `DialogProps`, `SelectProps`).  
+- The component MUST be typed with this interface: `React.forwardRef<ComponentNameProps, ...>`.
+
+**3. COMPONENT-SPECIFIC PROPS (ALLOWED ONLY)**  
+Extra props are permitted **only** if they exist in the official Radix UI primitive of the exact same name (latest stable).  
+Examples (not exhaustive): modal, forceMount, side, align, loop, collapsible, required, name, onSelect, placeholder, etc.  
+They MUST be documented with the same WHY/WHEN/HOW style internally.
+
+**4. FORBIDDEN PROPS (HARD RULES)**  
+- className, style, css, variant, size, color or any visual prop  
+- isOpen, isChecked, isSelected, isDisabled, render (React Aria naming)  
+- selected? (never use as top-level prop)  
+- Any prop not present in the real Radix primitive of the same name
+
+**REJECTION CONDITION**  
+Any code that breaks any rule above (including guessing extra props or omitting the ComponentNameProps interface) MUST be rejected and regenerated until perfect.

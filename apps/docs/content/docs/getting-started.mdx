@@ -1,0 +1,56 @@
+---
+title: Getting Started
+description: Installation and basic usage of Headless Primitives
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# Getting Started
+
+## Installation
+
+<Steps>
+  <Step>
+    Install the core package and React:
+    ```bash
+    pnpm add @headless-primitives/core react react-dom
+    ```
+  </Step>
+  <Step>Ensure you have React 19 or later (peer dependency).</Step>
+</Steps>
+
+## Basic Usage
+
+### Slot (asChild)
+
+Use `Slot` with `asChild` for polymorphic rendering—merge props onto your own element:
+
+```tsx
+import { Slot } from '@headless-primitives/core';
+
+<Slot asChild>
+  <button type="button">Trigger</button>
+</Slot>;
+```
+
+### useSlotId
+
+Auto-generate stable IDs for ARIA linking:
+
+```tsx
+import { useSlotId } from '@headless-primitives/core';
+
+function MyComponent({ id }: { id?: string }) {
+  const generatedId = useSlotId(id);
+  return (
+    <div id={generatedId} aria-labelledby={generatedId}>
+      ...
+    </div>
+  );
+}
+```
+
+## Next Steps
+
+- Browse [Primitives](/docs/primitives) for available components
+- See `.cursor/rules/` in the repo for API and accessibility standards

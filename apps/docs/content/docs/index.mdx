@@ -1,0 +1,40 @@
+---
+title: Overview
+description: Headless UI primitives with full WCAG 2.2 AA accessibility support
+---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# Headless Primitives
+
+A headless TypeScript library providing UI primitives with full modern accessibility support.
+
+## What is this?
+
+This library delivers unstyled, accessible building blocks that follow Radix UI's API conventions. Primitives handle semantics, keyboard interaction, focus management, and ARIA—consumers provide all styling.
+
+## Key Features
+
+- **WCAG 2.2 AA** — Full accessibility compliance
+- **Radix-style API** — Familiar props (`open`, `defaultOpen`, `value`, `checked`, `asChild`, etc.)
+- **No visual styles** — Headless only; you control appearance
+- **TypeScript** — Full type safety
+
+## Quick Start
+
+<Steps>
+  <Step>
+    Install the package:
+    ```bash
+    pnpm add @headless-primitives/core react react-dom
+    ```
+  </Step>
+  <Step>
+    Import and use:
+    ```tsx
+    import { Slot, useSlotId } from '@headless-primitives/core';
+    ```
+  </Step>
+</Steps>
+
+See [Getting Started](/docs/getting-started) for detailed setup.

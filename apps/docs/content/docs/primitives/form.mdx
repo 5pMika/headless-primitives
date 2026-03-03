@@ -1,0 +1,308 @@
+---
+title: Form
+description: A headless form primitive with native validation, accessible labels, and server-side error support
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Form
+
+## Overview
+
+Form is a headless primitive for building accessible forms with validation. It mirrors the Radix UI Form API and is built on the native HTML5 Constraint Validation API. Supports built-in validation (`required`, `min`, `max`, `pattern`), custom validation via `setCustomValidity`, and server-side validation with `serverInvalid` and `onClearServerErrors`.
+
+**Anatomy:** Root → Field(s) → Label, Control, Message, ValidityState. Each Field groups a Label, Control, and optional Message. Form.Submit renders a submit button. Form.ValidityState exposes validity via render prop.
+
+## API
+
+### Form.Root
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    onClearServerErrors: {
+      description: 'Called before re-submit and on form reset. Use to clear server error state.',
+      type: '() => void',
+    },
+    ref: {
+      description: 'Forwarded to form element',
+      type: 'React.Ref<HTMLFormElement>',
+    },
+  }}
+/>
+
+All standard `HTMLFormElement` attributes are supported via `...props`.
+
+### Form.Field
+
+<TypeTable
+  type={{
+    name: {
+      description: 'Required. Field name for id/name and label association.',
+      type: 'string',
+    },
+    serverInvalid: {
+      description: 'Marks field invalid for server-side validation. Sets data-invalid.',
+      type: 'boolean',
+    },
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to root element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-invalid`, `data-valid`.
+
+### Form.Label
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to label element',
+      type: 'React.Ref<HTMLLabelElement>',
+    },
+  }}
+/>
+
+Must be used within Form.Field. Data attributes: `data-invalid`, `data-valid`.
+
+### Form.Control
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child. Use for textarea, select, or custom controls.',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to input or child element',
+      type: 'React.Ref<HTMLInputElement>',
+    },
+  }}
+/>
+
+Renders `<input>` by default. All standard `HTMLInputElement` attributes supported. Data attributes: `data-invalid`, `data-valid`. Receives `aria-describedby` (message id) and `aria-invalid` from field context.
+
+### Form.Message
+
+<TypeTable
+  type={{
+    match: {
+      description:
+        'ValidityMatcher (e.g. "valueMissing", "typeMismatch") or CustomMatcher function. When to show the message.',
+      type: 'ValidityMatcher | CustomMatcher',
+    },
+    forceMatch: {
+      description: 'When true, always show message (e.g. for server errors).',
+      type: 'boolean',
+      default: 'false',
+    },
+    name: {
+      description: 'Required when used outside Form.Field. Associates message with field by name.',
+      type: 'string',
+    },
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to span element',
+      type: 'React.Ref<HTMLSpanElement>',
+    },
+  }}
+/>
+
+Uses `role="alert"` and `aria-live="polite"`. Data attributes: `data-invalid`, `data-valid`.
+
+### Form.ValidityState
+
+<TypeTable
+  type={{
+    children: {
+      description: 'Render prop. Receives ValidityState or undefined (SSR).',
+      type: '(validity: ValidityState | undefined) => React.ReactNode',
+    },
+    name: {
+      description: 'Required when used outside Form.Field.',
+      type: 'string',
+    },
+  }}
+/>
+
+### Form.Submit
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child. Type is forced to "submit".',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to button element',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+Renders `<button type="submit">`. Data attributes: `data-disabled`.
+
+## Accessibility
+
+### Keyboard
+
+- **Tab** / **Shift+Tab** — Move focus between form controls (native behavior)
+- **Enter** — Submits form when focus is on submit button (native behavior)
+
+### Focus
+
+- Focus moves to first invalid control on submit when validation fails
+- Native tab order follows DOM order
+- Disabled controls are not focusable
+
+### Screen Reader
+
+- Label associated with control via `htmlFor` / `id`
+- Control has `aria-describedby` pointing to message element
+- Control has `aria-invalid` when invalid
+- Message has `role="alert"` and `aria-live="polite"` for announcements
+- Keep validation messages short (max 10 words recommended)
+
+### Consumer Responsibilities
+
+You must provide:
+
+- Visible focus indicators on all form controls
+- Minimum target size (44x44px recommended for touch)
+- Color contrast for labels and messages
+- Full page testing with real screen readers
+
+## Examples
+
+### Installation
+
+<Steps>
+  <Step>Install the package: ```bash pnpm add @headless-primitives/core react react-dom ```</Step>
+  <Step>Import and use: ```tsx import { Form } from '@headless-primitives/core'; ```</Step>
+</Steps>
+
+### Basic
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    Simple form with required email field and validation message.
+  </Tab>
+  <Tab value="Code">
+    ```tsx
+    import { Form } from '@headless-primitives/core';
+
+    <Form.Root onSubmit={(e) => e.preventDefault()}>
+      <Form.Field name="email">
+        <Form.Label>Email</Form.Label>
+        <Form.Control type="email" required placeholder="you@example.com" />
+        <Form.Message match="valueMissing">Email is required</Form.Message>
+      </Form.Field>
+      <Form.Submit>Submit</Form.Submit>
+    </Form.Root>
+    ```
+  </Tab>
+</Tabs>
+
+### With Validation
+
+```tsx
+<Form.Root onSubmit={(e) => { e.preventDefault(); console.log(new FormData(e.currentTarget)); }}>
+  <Form.Field name="email">
+    <Form.Label>Email</Form.Label>
+    <Form.Control type="email" required />
+    <Form.Message match="valueMissing">Required</Form.Message>
+    <Form.Message match="typeMismatch">Enter a valid email</Form.Message>
+  </Form.Field>
+  <Form.Field name="age">
+    <Form.Label>Age</Form.Label>
+    <Form.Control type="number" min={18} max={120} required />
+    <Form.Message match="rangeUnderflow">Must be 18 or older</Form.Message>
+    <Form.Message match="rangeOverflow">Invalid age</Form.Message>
+  </Form.Field>
+  <Form.Submit>Submit</Form.Submit>
+</Form.Root>
+```
+
+### Server Errors
+
+```tsx
+const [serverError, setServerError] = useState<string | null>(null);
+
+<Form.Root
+  onClearServerErrors={() => setServerError(null)}
+  onSubmit={async (e) => {
+    e.preventDefault();
+    const res = await fetch('/api/login', { method: 'POST', body: new FormData(e.currentTarget) });
+    if (!res.ok) setServerError('Invalid credentials');
+  }}
+>
+  <Form.Field name="email" serverInvalid={!!serverError}>
+    <Form.Label>Email</Form.Label>
+    <Form.Control type="email" required />
+    <Form.Message forceMatch>{serverError ?? 'Email is required'}</Form.Message>
+  </Form.Field>
+  <Form.Submit>Submit</Form.Submit>
+</Form.Root>
+```
+
+### Form.Control with textarea (asChild)
+
+```tsx
+<Form.Field name="bio">
+  <Form.Label>Bio</Form.Label>
+  <Form.Control asChild>
+    <textarea rows={4} placeholder="Tell us about yourself" />
+  </Form.Control>
+  <Form.Message match="tooLong">Maximum 500 characters</Form.Message>
+</Form.Field>
+```
+
+### Styling with data attributes
+
+```css
+[data-invalid] {
+  border-color: red;
+}
+
+[data-valid] {
+  border-color: green;
+}
+
+[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+```
+
+## Edge Cases
+
+- **Form.Control with textarea/select:** Use `asChild` to wrap `<textarea>` or `<select>`. The control receives `id`, `name`, `aria-describedby`, `aria-invalid` from the field.
+- **Custom validation:** Use `element.setCustomValidity(message)` in `onInput` or `onBlur`. Clear with `setCustomValidity("")` when valid.
+- **Form.Message outside Field:** Pass the `name` prop to associate with a field. The message must be within Form.Root.
+- **RTL:** Form respects `dir="rtl"` on the form or ancestor.
+- **prefers-reduced-motion:** No animations are applied by the primitive; consumer controls any motion.
