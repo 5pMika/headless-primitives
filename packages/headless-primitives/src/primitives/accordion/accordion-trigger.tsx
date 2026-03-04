@@ -20,10 +20,10 @@ export const AccordionTrigger = React.forwardRef<HTMLButtonElement, AccordionTri
         if (typeof ref === 'function') ref(node);
         else if (ref) (ref as React.MutableRefObject<HTMLButtonElement | null>).current = node;
         if (node) {
-          setTriggerIndex(accordion.registerTrigger(node));
+          setTriggerIndex(accordion.registerTrigger(node, item.disabled));
         }
       },
-      [ref, accordion]
+      [ref, accordion, item.disabled]
     );
 
     React.useEffect(() => {
@@ -31,6 +31,12 @@ export const AccordionTrigger = React.forwardRef<HTMLButtonElement, AccordionTri
         if (triggerIndex !== null) accordion.unregisterTrigger(triggerIndex);
       };
     }, [accordion, triggerIndex]);
+
+    React.useEffect(() => {
+      if (triggerIndex !== null) {
+        accordion.updateTriggerDisabled(triggerIndex, item.disabled);
+      }
+    }, [accordion, triggerIndex, item.disabled]);
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
       if (item.disabled) return;
@@ -47,7 +53,7 @@ export const AccordionTrigger = React.forwardRef<HTMLButtonElement, AccordionTri
     const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
       if (item.disabled) return;
 
-      const { orientation, triggerRefs } = accordion;
+      const { orientation, triggerRefs, isTriggerDisabled } = accordion;
       const triggers = triggerRefs.current;
       const currentIndex = triggerIndex ?? 0;
       const count = triggers.length;
@@ -55,49 +61,71 @@ export const AccordionTrigger = React.forwardRef<HTMLButtonElement, AccordionTri
       const getNextIndex = (delta: number) => {
         let next = currentIndex + delta;
         while (next >= 0 && next < count) {
-          if (triggers[next]) return next;
+          if (triggers[next] && !isTriggerDisabled(next)) return next;
           next += delta;
         }
-        return delta > 0 ? count - 1 : 0;
+        for (let i = delta > 0 ? count - 1 : 0; delta > 0 ? i >= 0 : i < count; i += delta > 0 ? -1 : 1) {
+          if (triggers[i] && !isTriggerDisabled(i)) return i;
+        }
+        return currentIndex;
+      };
+
+      const getFirstEnabledIndex = () => {
+        for (let i = 0; i < count; i++) {
+          if (triggers[i] && !isTriggerDisabled(i)) return i;
+        }
+        return currentIndex;
+      };
+
+      const getLastEnabledIndex = () => {
+        for (let i = count - 1; i >= 0; i--) {
+          if (triggers[i] && !isTriggerDisabled(i)) return i;
+        }
+        return currentIndex;
       };
 
       switch (e.key) {
         case 'ArrowDown':
           if (orientation === 'vertical') {
             e.preventDefault();
-            accordion.setFocusedIndex(getNextIndex(1));
-            triggers[getNextIndex(1)]?.focus();
+            const nextDown = getNextIndex(1);
+            accordion.setFocusedIndex(nextDown);
+            triggers[nextDown]?.focus();
           }
           break;
         case 'ArrowUp':
           if (orientation === 'vertical') {
             e.preventDefault();
-            accordion.setFocusedIndex(getNextIndex(-1));
-            triggers[getNextIndex(-1)]?.focus();
+            const nextUp = getNextIndex(-1);
+            accordion.setFocusedIndex(nextUp);
+            triggers[nextUp]?.focus();
           }
           break;
         case 'ArrowRight':
           if (orientation === 'horizontal') {
             e.preventDefault();
-            accordion.setFocusedIndex(getNextIndex(1));
-            triggers[getNextIndex(1)]?.focus();
+            const nextRight = getNextIndex(1);
+            accordion.setFocusedIndex(nextRight);
+            triggers[nextRight]?.focus();
           }
           break;
         case 'ArrowLeft':
           if (orientation === 'horizontal') {
             e.preventDefault();
-            accordion.setFocusedIndex(getNextIndex(-1));
-            triggers[getNextIndex(-1)]?.focus();
+            const nextLeft = getNextIndex(-1);
+            accordion.setFocusedIndex(nextLeft);
+            triggers[nextLeft]?.focus();
           }
           break;
         case 'Home':
           e.preventDefault();
-          accordion.setFocusedIndex(0);
-          triggers[0]?.focus();
+          const firstIdx = getFirstEnabledIndex();
+          accordion.setFocusedIndex(firstIdx);
+          triggers[firstIdx]?.focus();
           break;
         case 'End': {
           e.preventDefault();
-          const lastIdx = count - 1;
+          const lastIdx = getLastEnabledIndex();
           accordion.setFocusedIndex(lastIdx);
           triggers[lastIdx]?.focus();
           break;
@@ -112,7 +140,9 @@ export const AccordionTrigger = React.forwardRef<HTMLButtonElement, AccordionTri
       }
     };
 
-    const tabIndex = accordion.focusedIndex === triggerIndex && !item.disabled ? 0 : -1;
+    const isFocused =
+      accordion.focusedIndex === triggerIndex && !item.disabled;
+    const tabIndex = isFocused ? 0 : -1;
 
     const triggerProps = {
       ref: composedRef,
@@ -120,6 +150,7 @@ export const AccordionTrigger = React.forwardRef<HTMLButtonElement, AccordionTri
       'aria-expanded': item.open,
       'aria-controls': item.contentId,
       'data-state': item.open ? 'open' : 'closed',
+      ...(isFocused && { 'data-focus': '' as const }),
       ...(item.disabled && { 'data-disabled': '', disabled: true }),
       'data-orientation': accordion.orientation,
       'data-accordion-trigger': '',

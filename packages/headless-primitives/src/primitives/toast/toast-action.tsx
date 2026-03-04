@@ -7,6 +7,18 @@ export interface ToastActionProps extends React.ButtonHTMLAttributes<HTMLButtonE
   altText: string;
 }
 
+function hasVisibleText(children: React.ReactNode): boolean {
+  if (children == null) return false;
+  if (typeof children === 'string') return children.trim().length > 0;
+  if (typeof children === 'number') return true;
+  if (Array.isArray(children)) return children.some(hasVisibleText);
+  if (React.isValidElement(children)) {
+    const props = children.props as { children?: React.ReactNode };
+    return props?.children != null && hasVisibleText(props.children);
+  }
+  return false;
+}
+
 export const ToastAction = React.forwardRef<HTMLButtonElement, ToastActionProps>(
   function ToastAction({ asChild = false, altText, children, onClick, ...props }, ref) {
     const { onClose } = useToastRootContext();
@@ -19,10 +31,11 @@ export const ToastAction = React.forwardRef<HTMLButtonElement, ToastActionProps>
       [onClose, onClick]
     );
 
+    const isIconOnly = !hasVisibleText(children);
     const actionProps = {
       ref,
       type: 'button' as const,
-      'aria-label': altText,
+      ...(isIconOnly ? { 'aria-label': altText } : { 'aria-description': altText }),
       onClick: handleClick,
       ...props,
     };
@@ -30,11 +43,7 @@ export const ToastAction = React.forwardRef<HTMLButtonElement, ToastActionProps>
     if (asChild) {
       const child = React.Children.only(children);
       if (!React.isValidElement(child)) {
-        return (
-          <button {...actionProps} aria-label={altText}>
-            {children}
-          </button>
-        );
+        return <button {...actionProps}>{children}</button>;
       }
       const mergedProps = mergeProps(
         actionProps as Record<string, unknown>,

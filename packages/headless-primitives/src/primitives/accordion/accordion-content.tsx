@@ -13,7 +13,7 @@ export const AccordionContent = React.forwardRef<HTMLDivElement, AccordionConten
     const item = useAccordionItemContext();
     const accordion = useAccordionContext();
 
-    const shouldRender = item.open || forceMount;
+    const shouldRenderContent = item.open || forceMount;
 
     const contentProps = {
       ref,
@@ -25,12 +25,24 @@ export const AccordionContent = React.forwardRef<HTMLDivElement, AccordionConten
       'data-orientation': accordion.orientation,
       ...(!item.open && { 'aria-hidden': true }),
       ...(item.open && { 'aria-hidden': false }),
-      ...(forceMount && !item.open && { hidden: true }),
+      ...(!item.open && { hidden: true }),
       ...props,
     };
 
-    if (!shouldRender) {
-      return null;
+    if (!shouldRenderContent) {
+      return (
+        <div
+          ref={ref}
+          id={item.contentId}
+          aria-labelledby={item.triggerId}
+          role="region"
+          aria-hidden
+          hidden
+          data-state="closed"
+          data-orientation={accordion.orientation}
+          {...(item.disabled && { 'data-disabled': '' })}
+        />
+      );
     }
 
     if (asChild) {

@@ -55,15 +55,29 @@ export const AccordionRoot = React.forwardRef<HTMLDivElement, AccordionRootProps
 
     const [focusedIndex, setFocusedIndex] = React.useState(0);
     const triggerRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
+    const triggerDisabledRef = React.useRef<Map<number, boolean>>(new Map());
 
-    const registerTrigger = React.useCallback((ref: HTMLButtonElement | null) => {
-      const index = triggerRefs.current.length;
-      triggerRefs.current.push(ref);
-      return index;
-    }, []);
+    const registerTrigger = React.useCallback(
+      (ref: HTMLButtonElement | null, disabled: boolean) => {
+        const index = triggerRefs.current.length;
+        triggerRefs.current.push(ref);
+        triggerDisabledRef.current.set(index, disabled);
+        return index;
+      },
+      []
+    );
 
     const unregisterTrigger = React.useCallback((index: number) => {
       triggerRefs.current[index] = null;
+      triggerDisabledRef.current.delete(index);
+    }, []);
+
+    const updateTriggerDisabled = React.useCallback((index: number, disabled: boolean) => {
+      triggerDisabledRef.current.set(index, disabled);
+    }, []);
+
+    const isTriggerDisabled = React.useCallback((index: number) => {
+      return triggerDisabledRef.current.get(index) ?? false;
     }, []);
 
     const contextValue: AccordionContextValue = React.useMemo(
@@ -79,6 +93,8 @@ export const AccordionRoot = React.forwardRef<HTMLDivElement, AccordionRootProps
         setFocusedIndex,
         registerTrigger,
         unregisterTrigger,
+        updateTriggerDisabled,
+        isTriggerDisabled,
         triggerRefs,
       }),
       [
@@ -92,6 +108,8 @@ export const AccordionRoot = React.forwardRef<HTMLDivElement, AccordionRootProps
         focusedIndex,
         registerTrigger,
         unregisterTrigger,
+        updateTriggerDisabled,
+        isTriggerDisabled,
       ]
     );
 

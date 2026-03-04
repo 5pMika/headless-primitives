@@ -14,8 +14,10 @@ export interface AccordionContextValue {
   disabled: boolean;
   focusedIndex: number;
   setFocusedIndex: (index: number) => void;
-  registerTrigger: (ref: HTMLButtonElement | null) => number;
+  registerTrigger: (ref: HTMLButtonElement | null, disabled: boolean) => number;
   unregisterTrigger: (index: number) => void;
+  updateTriggerDisabled: (index: number, disabled: boolean) => void;
+  isTriggerDisabled: (index: number) => boolean;
   triggerRefs: React.MutableRefObject<(HTMLButtonElement | null)[]>;
 }
 
