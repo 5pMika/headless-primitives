@@ -1,0 +1,295 @@
+---
+title: Select
+description: A headless single-select dropdown primitive with keyboard navigation and type-to-search
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Select
+
+## Overview
+
+Select is a headless compound primitive for single-select dropdowns. It matches Radix UI's API: Root, Trigger, Portal, Content, and Item. Supports keyboard navigation, type-to-search, focus trap, and form integration.
+
+**Anatomy:** Root → Trigger, Portal → Content → Item(s).
+
+## API
+
+### Select.Root
+
+<TypeTable
+  type={{
+    value: {
+      description: 'Controlled selected value',
+      type: 'string',
+    },
+    defaultValue: {
+      description: 'Uncontrolled initial value. Ignored when value is provided.',
+      type: 'string',
+    },
+    onValueChange: {
+      description: 'Called when selection changes',
+      type: '(value: string) => void',
+    },
+    open: {
+      description: 'Controlled open state',
+      type: 'boolean',
+    },
+    defaultOpen: {
+      description: 'Uncontrolled initial open state. Ignored when open is provided.',
+      type: 'boolean',
+      default: 'false',
+    },
+    onOpenChange: {
+      description: 'Called when open state changes',
+      type: '(open: boolean) => void',
+    },
+    required: {
+      description: 'Marks as required for form validation',
+      type: 'boolean',
+    },
+    disabled: {
+      description: 'Disables the entire select',
+      type: 'boolean',
+      default: 'false',
+    },
+    name: {
+      description: 'Form field name for submission',
+      type: 'string',
+    },
+    children: {
+      description: 'Select parts',
+      type: 'React.ReactNode',
+    },
+  }}
+/>
+
+### Select.Trigger
+
+<TypeTable
+  type={{
+    disabled: {
+      description: 'Disables the trigger',
+      type: 'boolean',
+      default: 'false',
+    },
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to trigger element',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (open/closed), `data-disabled`. Renders with `aria-haspopup="listbox"`, `aria-expanded`.
+
+### Select.Portal
+
+<TypeTable
+  type={{
+    container: {
+      description: 'DOM node to render portal into. Default: document.body',
+      type: 'HTMLElement',
+    },
+    children: {
+      description: 'Content',
+      type: 'React.ReactNode',
+    },
+  }}
+/>
+
+### Select.Content
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    forceMount: {
+      description: 'Keep in DOM when closed (for animations)',
+      type: 'boolean',
+      default: 'false',
+    },
+    loop: {
+      description: 'Loop focus when navigating with Arrow keys',
+      type: 'boolean',
+      default: 'false',
+    },
+    position: {
+      description: 'Positioning mode: "item-aligned" | "popper"',
+      type: '"item-aligned" | "popper"',
+      default: '"popper"',
+    },
+    ref: {
+      description: 'Forwarded to content element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (open/closed). Renders with `role="listbox"`.
+
+### Select.Item
+
+<TypeTable
+  type={{
+    value: {
+      description: 'Unique string value for this option (required)',
+      type: 'string',
+    },
+    disabled: {
+      description: 'Disables this item',
+      type: 'boolean',
+      default: 'false',
+    },
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to item element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-highlighted`, `data-state` (checked/unchecked), `data-disabled`. Renders with `role="option"`, `aria-selected`.
+
+## Accessibility
+
+### Keyboard
+
+- **Enter** / **Space** — Open/close; select focused item when open
+- **Arrow Down** — Open if closed; move focus to next item when open
+- **Arrow Up** — Move focus to previous item when open
+- **Home** — Focus first item when open
+- **End** — Focus last item when open
+- **Escape** — Close, return focus to trigger
+- **Typeahead** — Jump to item by typing first letters
+- **Tab** / **Shift+Tab** — Close and move focus when open
+
+### Focus
+
+- Focus moves to first item when content opens
+- Focus returns to trigger when content closes
+- Focus trap inside content when open
+- Disabled items are skipped
+
+### Screen Reader
+
+- Trigger: `aria-haspopup="listbox"`, `aria-expanded`, `aria-controls`
+- Content: `role="listbox"`; Items: `role="option"`, `aria-selected`
+- `data-highlighted` for current focus
+- Accessible name from visible text or `aria-label`
+
+### Consumer Responsibilities
+
+You must provide:
+
+- Visible focus indicators
+- Positioning (CSS, Popper, Floating UI)
+- Display of selected value in trigger (this library does not render the selected label)
+
+## Examples
+
+### Installation
+
+<Steps>
+  <Step>Install the package: ```bash pnpm add @headless-primitives/core react react-dom ```</Step>
+  <Step>Import and use: ```tsx import { Select } from '@headless-primitives/core'; ```</Step>
+</Steps>
+
+### Basic
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    Basic select with trigger and items.
+  </Tab>
+  <Tab value="Code">
+    ```tsx
+    import { Select } from '@headless-primitives/core';
+
+    <Select.Root defaultValue="apple">
+      <Select.Trigger>Select fruit</Select.Trigger>
+      <Select.Portal>
+        <Select.Content>
+          <Select.Item value="apple">Apple</Select.Item>
+          <Select.Item value="banana">Banana</Select.Item>
+          <Select.Item value="orange">Orange</Select.Item>
+        </Select.Content>
+      </Select.Portal>
+    </Select.Root>
+    ```
+  </Tab>
+</Tabs>
+
+### Controlled
+
+```tsx
+const [value, setValue] = useState('apple');
+
+<Select.Root value={value} onValueChange={setValue}>
+  <Select.Trigger>{value || 'Select'}</Select.Trigger>
+  <Select.Portal>
+    <Select.Content>
+      <Select.Item value="apple">Apple</Select.Item>
+      <Select.Item value="banana">Banana</Select.Item>
+    </Select.Content>
+  </Select.Portal>
+</Select.Root>
+```
+
+### Displaying Selected Value
+
+The consumer must render the selected label in the trigger. Use controlled mode and map value to label:
+
+```tsx
+const options = [{ value: 'apple', label: 'Apple' }, { value: 'banana', label: 'Banana' }];
+const [value, setValue] = useState('apple');
+const selectedLabel = options.find(o => o.value === value)?.label ?? 'Select';
+
+<Select.Root value={value} onValueChange={setValue}>
+  <Select.Trigger>{selectedLabel}</Select.Trigger>
+  <Select.Portal>
+    <Select.Content>
+      {options.map(o => (
+        <Select.Item key={o.value} value={o.value}>{o.label}</Select.Item>
+      ))}
+    </Select.Content>
+  </Select.Portal>
+</Select.Root>
+```
+
+### Styling with data attributes
+
+```css
+[data-highlighted] {
+  background: var(--highlight-bg);
+}
+
+[data-state="checked"] {
+  /* selected item styles */
+}
+
+[data-disabled] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+```
+
+## Edge Cases
+
+- **forceMount:** When true, Content stays in DOM when closed. Use `aria-hidden` and `hidden` for accessibility.
+- **loop:** When true, Arrow Down on last item focuses first; Arrow Up on first focuses last.
+- **Positioning:** This library is headless. Use CSS, Popper, or Floating UI for positioning.
+- **Form submission:** Use a hidden input if you need to submit the selected value; the trigger is a button and does not submit by default.
+- **Disabled items:** Skipped in keyboard navigation; not selectable.

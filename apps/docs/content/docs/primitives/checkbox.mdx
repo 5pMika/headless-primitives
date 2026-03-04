@@ -1,0 +1,206 @@
+---
+title: Checkbox
+description: A headless checkbox primitive with tri-state (indeterminate) support and form integration
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Checkbox
+
+## Overview
+
+Checkbox is a headless compound primitive for checkboxes. It matches Radix UI's API: Root and Indicator. Supports tri-state (`checked`, `unchecked`, `indeterminate`) and includes a hidden native input for form submission.
+
+**Anatomy:** Root (button wrapper + hidden input) → optional Indicator (visual). The Root handles semantics; Indicator is for custom visuals.
+
+## API
+
+### Checkbox.Root
+
+<TypeTable
+  type={{
+    checked: {
+      description: 'Controlled state: true | false | "indeterminate"',
+      type: 'boolean | "indeterminate"',
+    },
+    defaultChecked: {
+      description: 'Uncontrolled initial state. Ignored when checked is provided.',
+      type: 'boolean | "indeterminate"',
+      default: 'false',
+    },
+    onCheckedChange: {
+      description: 'Called when state changes',
+      type: '(checked: boolean | "indeterminate") => void',
+    },
+    disabled: {
+      description: 'Disables the checkbox',
+      type: 'boolean',
+      default: 'false',
+    },
+    required: {
+      description: 'Marks as required for form validation',
+      type: 'boolean',
+    },
+    name: {
+      description: 'Form field name for submission',
+      type: 'string',
+    },
+    value: {
+      description: 'Form field value when checked. Default: "on".',
+      type: 'string',
+      default: '"on"',
+    },
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to root element',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (checked/unchecked/indeterminate), `data-disabled`.
+
+### Checkbox.Indicator
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to indicator element',
+      type: 'React.Ref<HTMLSpanElement>',
+    },
+  }}
+/>
+
+Renders only when Root has children. Data attributes: `data-state`, `data-disabled`.
+
+## Accessibility
+
+### Keyboard
+
+- **Enter** / **Space** — Toggle (cycles: unchecked → checked → unchecked; or indeterminate → checked → unchecked)
+- **Tab** / **Shift+Tab** — Move focus in/out
+
+### Focus
+
+- Checkbox is focusable when not disabled
+- Hidden native input preserves form semantics
+
+### Screen Reader
+
+- Root: `role="checkbox"`, `aria-checked` (true/false/"mixed" for indeterminate)
+- `aria-disabled` when disabled
+- Accessible name from visible text, `aria-label`, or `aria-labelledby`
+
+### Consumer Responsibilities
+
+You must provide:
+
+- Visible focus indicators
+- Visual representation of checked/unchecked/indeterminate
+- Minimum target size (44x44px recommended)
+
+## Examples
+
+### Installation
+
+<Steps>
+  <Step>Install the package: ```bash pnpm add @headless-primitives/core react react-dom ```</Step>
+  <Step>Import and use: ```tsx import { Checkbox } from '@headless-primitives/core'; ```</Step>
+</Steps>
+
+### Basic
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    Basic checkbox with indicator.
+  </Tab>
+  <Tab value="Code">
+    ```tsx
+    import { Checkbox } from '@headless-primitives/core';
+
+    <Checkbox.Root aria-label="Accept terms">
+      <Checkbox.Indicator>✓</Checkbox.Indicator>
+    </Checkbox.Root>
+    ```
+  </Tab>
+</Tabs>
+
+### Tri-state (Indeterminate)
+
+```tsx
+const [checked, setChecked] = useState<'indeterminate' | boolean>('indeterminate');
+
+<Checkbox.Root
+  checked={checked}
+  onCheckedChange={setChecked}
+  aria-label="Select all"
+>
+  <Checkbox.Indicator>{checked === 'indeterminate' ? '−' : checked ? '✓' : ''}</Checkbox.Indicator>
+</Checkbox.Root>
+```
+
+### Controlled
+
+```tsx
+const [checked, setChecked] = useState(false);
+
+<Checkbox.Root checked={checked} onCheckedChange={setChecked} aria-label="Subscribe">
+  <Checkbox.Indicator>✓</Checkbox.Indicator>
+</Checkbox.Root>
+```
+
+### Form Integration
+
+```tsx
+<form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.currentTarget); console.log(fd.get('agree')); }}>
+  <Checkbox.Root name="agree" value="yes" aria-label="I agree">
+    <Checkbox.Indicator>✓</Checkbox.Indicator>
+  </Checkbox.Root>
+  <button type="submit">Submit</button>
+</form>
+```
+
+### Styling with data-state
+
+```css
+[data-state="checked"] .indicator {
+  display: block;
+}
+
+[data-state="unchecked"] .indicator {
+  display: none;
+}
+
+[data-state="indeterminate"] .indicator {
+  display: block;
+  /* e.g. minus icon */
+}
+
+[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+```
+
+## Edge Cases
+
+<Callout type="info">
+  **Tri-state cycle:** When indeterminate, the first activation goes to checked, then unchecked. The exact cycle depends on your `onCheckedChange` logic.
+</Callout>
+
+- **forceMount:** Not applicable; Checkbox has no overlay.
+- **Hidden input:** Root includes a hidden `input[type="checkbox"]` for form submission. The `indeterminate` state is set on this input for proper semantics.
+- **asChild:** When true on Root, merges props onto single child. Child must accept ref and button props.
+- **Indicator:** Optional. Use for custom checkmark/minus icons. Root works without it if you style the button directly.

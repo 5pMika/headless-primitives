@@ -1,0 +1,313 @@
+---
+title: Dropdown Menu
+description: A headless dropdown menu primitive with roving tabindex, typeahead, and submenu support
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Dropdown Menu
+
+## Overview
+
+Dropdown Menu is a headless compound primitive for menus triggered by a button. It matches Radix UI's API: Root, Trigger, Portal, Content, Item, Group, Label, Separator. Supports roving tabindex, typeahead, and keyboard navigation.
+
+**Anatomy:** Root → Trigger, Portal → Content → Item(s), Group, Label, Separator.
+
+## API
+
+### DropdownMenu.Root
+
+<TypeTable
+  type={{
+    open: {
+      description: 'Controlled open state',
+      type: 'boolean',
+    },
+    defaultOpen: {
+      description: 'Uncontrolled initial open state. Ignored when open is provided.',
+      type: 'boolean',
+      default: 'false',
+    },
+    onOpenChange: {
+      description: 'Called when open state changes',
+      type: '(open: boolean) => void',
+    },
+    modal: {
+      description: 'When true, traps focus and blocks interaction outside. Default: true.',
+      type: 'boolean',
+      default: 'true',
+    },
+    dir: {
+      description: 'Text direction for RTL support',
+      type: '"ltr" | "rtl"',
+      default: '"ltr"',
+    },
+    children: {
+      description: 'Dropdown menu parts',
+      type: 'React.ReactNode',
+    },
+  }}
+/>
+
+### DropdownMenu.Trigger
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to trigger element',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (open/closed).
+
+### DropdownMenu.Portal
+
+<TypeTable
+  type={{
+    container: {
+      description: 'DOM node to render portal into. Default: document.body',
+      type: 'HTMLElement',
+    },
+    children: {
+      description: 'Content',
+      type: 'React.ReactNode',
+    },
+  }}
+/>
+
+### DropdownMenu.Content
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    forceMount: {
+      description: 'Keep in DOM when closed (for animations)',
+      type: 'boolean',
+      default: 'false',
+    },
+    loop: {
+      description: 'Loop focus when navigating with Arrow keys',
+      type: 'boolean',
+      default: 'false',
+    },
+    onEscapeKeyDown: {
+      description: 'Called when Escape is pressed',
+      type: '(event: KeyboardEvent) => void',
+    },
+    onPointerDownOutside: {
+      description: 'Called when pointer down occurs outside',
+      type: '(event: Event) => void',
+    },
+    onInteractOutside: {
+      description: 'Called when interaction occurs outside',
+      type: '(event: Event) => void',
+    },
+    ref: {
+      description: 'Forwarded to content element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (open/closed).
+
+### DropdownMenu.Item
+
+<TypeTable
+  type={{
+    disabled: {
+      description: 'Disables the item',
+      type: 'boolean',
+      default: 'false',
+    },
+    onSelect: {
+      description: 'Called when item is selected (click or Enter/Space)',
+      type: '(event: Event) => void',
+    },
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to item element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-highlighted`, `data-disabled`.
+
+### DropdownMenu.Group
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to group element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+### DropdownMenu.Label
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to label element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+### DropdownMenu.Separator
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to separator element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+## Accessibility
+
+### Keyboard
+
+- **Enter** / **Space** — Activate focused item
+- **Arrow Down** — Move focus to next item
+- **Arrow Up** — Move focus to previous item
+- **Home** — Focus first item
+- **End** — Focus last item
+- **Escape** — Close menu, return focus to trigger
+- **Typeahead** — Jump to item by typing first letters
+- **Tab** / **Shift+Tab** — Trapped when modal
+
+### Focus
+
+- Roving tabindex: only the focused item has `tabIndex={0}`; others have `tabIndex={-1}`
+- Focus moves to first item when menu opens
+- Focus returns to trigger when menu closes
+- Disabled items are skipped
+
+### Screen Reader
+
+- Content: `role="menu"`; items: `role="menuitem"`
+- `data-highlighted` for current focus
+- `data-disabled` for disabled items
+- Accessible name from visible text or `aria-label`
+
+### Consumer Responsibilities
+
+You must provide:
+
+- Visible focus indicators
+- Positioning (CSS, Popper, Floating UI)
+- Menu item styling
+
+## Examples
+
+### Installation
+
+<Steps>
+  <Step>Install the package: ```bash pnpm add @headless-primitives/core react react-dom ```</Step>
+  <Step>Import and use: ```tsx import { DropdownMenu } from '@headless-primitives/core'; ```</Step>
+</Steps>
+
+### Basic
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    Basic dropdown menu with trigger and items.
+  </Tab>
+  <Tab value="Code">
+    ```tsx
+    import { DropdownMenu } from '@headless-primitives/core';
+
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger>Open menu</DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content>
+          <DropdownMenu.Item onSelect={() => {}}>New item</DropdownMenu.Item>
+          <DropdownMenu.Item onSelect={() => {}}>Edit</DropdownMenu.Item>
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item onSelect={() => {}}>Delete</DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+    ```
+  </Tab>
+</Tabs>
+
+### With Groups and Labels
+
+```tsx
+<DropdownMenu.Root>
+  <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
+  <DropdownMenu.Portal>
+    <DropdownMenu.Content>
+      <DropdownMenu.Group>
+        <DropdownMenu.Label>File</DropdownMenu.Label>
+        <DropdownMenu.Item onSelect={() => {}}>New</DropdownMenu.Item>
+        <DropdownMenu.Item onSelect={() => {}}>Open</DropdownMenu.Item>
+      </DropdownMenu.Group>
+      <DropdownMenu.Separator />
+      <DropdownMenu.Group>
+        <DropdownMenu.Label>Edit</DropdownMenu.Label>
+        <DropdownMenu.Item onSelect={() => {}}>Cut</DropdownMenu.Item>
+        <DropdownMenu.Item onSelect={() => {}} disabled>Copy</DropdownMenu.Item>
+      </DropdownMenu.Group>
+    </DropdownMenu.Content>
+  </DropdownMenu.Portal>
+</DropdownMenu.Root>
+```
+
+### Styling with data attributes
+
+```css
+[data-highlighted] {
+  background: var(--highlight-bg);
+}
+
+[data-disabled] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+```
+
+## Edge Cases
+
+- **forceMount:** When true, Content stays in DOM when closed. Use `aria-hidden` and `hidden` for accessibility.
+- **loop:** When true, Arrow Down on last item focuses first; Arrow Up on first focuses last.
+- **dir="rtl":** Full RTL support for keyboard navigation.
+- **Disabled items:** Skipped in keyboard navigation; not selectable.
+- **Typeahead:** Type first letters to jump to matching item; resets after timeout.

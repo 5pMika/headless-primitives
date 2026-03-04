@@ -1,11 +1,11 @@
 ---
-description: HEADLESS ACCESSIBILITY PRIMITIVES RULESET (WCAG 2.2 AA + WAI-ARIA 1.2 + Safe 1.3 Forward)
+description: HEADLESS ACCESSIBILITY PRIMITIVES RULESET (WCAG 2.2 AA + WAI-ARIA 1.2 + Safe 1.3 Forward + React Aria Tier Edge Cases)
 globs: []
 alwaysApply: true
 ---
 
 # HEADLESS ACCESSIBILITY PRIMITIVES RULESET
-**(WCAG 2.2 AA – Behavior & Semantics Only + WAI-ARIA 1.2 + Safe 1.3 Forward)**
+**(WCAG 2.2 AA – Behavior & Semantics Only + WAI-ARIA 1.2 + Safe 1.3 Forward + React Aria Tier Edge Cases)**
 
 **0. GLOBAL ENFORCEMENT**  
 1. All generated primitives MUST follow this document exactly.  
@@ -40,7 +40,7 @@ Follow **WAI-ARIA Authoring Practices Guide 1.2 exactly** for every widget.
 WAI-ARIA 1.3 is still a Working Draft. Base everything on stable APG 1.2.  
 Safe to adopt immediately (without breaking 1.2 compatibility):  
 • Prefer `aria-description` for short descriptions when appropriate.  
-• Follow updated live-region timing and best practices.  
+• Follow updated live-region timing and best practices (including hidden announcer, queue, and 200 ms delay for non-overlapping announcements).  
 • Support `aria-details` (can reference multiple IDs).  
 • Prepare for new roles (comment, suggestion, mark) but **do not use them yet** in production code.  
 • `aria-braillelabel` and `aria-brailleroledescription` only if explicitly requested.  
@@ -53,13 +53,19 @@ For modals, popovers, dialogs, and menus:
 3. Return focus to the trigger on close (Escape or outside click).  
 4. Never create keyboard traps.  
 5. For portals: always use React Portal and handle focus after mount.  
-6. Expose focus state via data attributes.
+6. Expose focus state via data attributes.  
+7. Handle nested widgets by restoring focus to the correct parent on close.
 
 **5. STATE & LIVE REGION GUARANTEES**  
 1. State is internal or controlled via props.  
 2. ARIA attributes update instantly with state.  
 3. Use aria-live="polite" by default for status changes.  
-4. Announcements must be concise (max ~10 words) and only convey changed values.
+4. Announcements must be concise (max ~10 words) and only convey changed values.  
+5. For status primitives (Toast, Alert, etc.): add an OPTIONAL single hidden live-region announcer in the Provider (controlled by `useSmartAnnouncer` prop).  
+6. Build smart contextual messages from props only (example: "Success: " + title or "Error: " + description).  
+7. Use a queue + 200 ms delay so multiple announcements never overlap (optional – default off for zero delay).  
+8. Hidden announcer must stay visually hidden (consumer provides sr-only styles) but fully accessible to screen readers.  
+9. Visible toast content remains exactly as before – no changes required.
 
 **6. DRAG AND DROP GUARANTEES**  
 1. Always provide full keyboard alternative.  
@@ -76,7 +82,8 @@ For modals, popovers, dialogs, and menus:
 1. No hardcoded strings – all text via props.  
 2. Full dir="rtl" support.  
 3. Handle text expansion gracefully.  
-4. Primitives must be nestable and composable without breaking ARIA or focus.
+4. Primitives must be nestable and composable without breaking ARIA or focus.  
+5. Support i18n message formatting (optional formatter function in Provider for translated smart announcements).
 
 **9. SERVER RENDERING GUARANTEES**  
 1. Server-rendered HTML must match client HTML.  
@@ -91,7 +98,8 @@ For modals, popovers, dialogs, and menus:
 
 **11. EXTRA SUPPORT**  
 1. Expose refs, state, and helper utilities for testing.  
-2. Include built-in support for keyboard and live-region testing.
+2. Include built-in support for keyboard and live-region testing (include queue and announcer helpers).  
+3. Provide optional useAnnouncer hook for custom status components.
 
 **12. COMPOUND COMPONENT REQUIREMENTS**  
 Every multi-part primitive (Accordion, Tabs, etc.) MUST:  
@@ -114,14 +122,23 @@ Clearly document that the consumer is responsible for:
 3. Target size (2.5.8)  
 4. Full page + real screen reader testing
 
+**15. DEEP EDGE-CASE PROTECTION GUARANTEES (React Aria Tier)**  
+1. Handle dynamic content changes without losing focus or breaking live regions.  
+2. Auto-restore focus in nested dialogs, popovers, and portals.  
+3. Fix known browser bugs (focus jumping in lists, VoiceOver double-announce, TalkBack swipe quirks) using safe workarounds.  
+4. Support mobile touch + keyboard combos for all widgets.  
+5. Keep announcements stable during fast re-renders.  
+6. All fixes must be optional and tree-shakable.
+
 **PRIORITY ORDER**  
 1. WCAG 2.2 AA  
 2. Native HTML first  
 3. APG 1.2 (with safe 1.3 forward practices)  
-4. Maximum consumer flexibility
+4. Deep edge-case robustness  
+5. Maximum consumer flexibility
 
 **REJECTION CONDITION**  
 Any code that breaks any rule above (especially missing Provider in compound components, incomplete APG 1.2 patterns, or incorrect ARIA) MUST be rejected and fully regenerated until it is perfect.
 
 When generating or regenerating code, always append this line at the bottom of your response:
-"Accessibility compliance: WCAG 2.2 AA semantics + APG 1.2 with safe WAI-ARIA 1.3 forward practices."
+"Accessibility compliance: WCAG 2.2 AA semantics + APG 1.2 with safe WAI-ARIA 1.3 forward practices + React Aria tier edge-case protection."

@@ -1,0 +1,234 @@
+---
+title: Tooltip
+description: A headless tooltip primitive with delay, hover/focus trigger, and Provider for coordination
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Tooltip
+
+## Overview
+
+Tooltip is a headless compound primitive for hover/focus-triggered hints. It matches Radix UI's API: Provider, Root, Trigger, and Content. Supports configurable delay, skip delay when moving between tooltips, and Escape to close.
+
+**Anatomy:** Provider (optional) → Root → Trigger, Content. Provider coordinates delay/skip across multiple tooltips.
+
+## API
+
+### Tooltip.Provider
+
+<TypeTable
+  type={{
+    delayDuration: {
+      description: 'Delay before showing tooltip (ms). Default: 700.',
+      type: 'number',
+      default: '700',
+    },
+    skipDelayDuration: {
+      description: 'When moving between tooltips, skip delay for this duration (ms). Default: 300.',
+      type: 'number',
+      default: '300',
+    },
+    children: {
+      description: 'Tooltip roots',
+      type: 'React.ReactNode',
+    },
+  }}
+/>
+
+Wrap your app or a section with multiple tooltips to coordinate delays.
+
+### Tooltip.Root
+
+<TypeTable
+  type={{
+    open: {
+      description: 'Controlled open state',
+      type: 'boolean',
+    },
+    defaultOpen: {
+      description: 'Uncontrolled initial open state. Ignored when open is provided.',
+      type: 'boolean',
+      default: 'false',
+    },
+    onOpenChange: {
+      description: 'Called when open state changes',
+      type: '(open: boolean) => void',
+    },
+    delayDuration: {
+      description: 'Override Provider delay for this tooltip',
+      type: 'number',
+    },
+    skipDelayDuration: {
+      description: 'Override Provider skip delay for this tooltip',
+      type: 'number',
+    },
+    children: {
+      description: 'Trigger and Content',
+      type: 'React.ReactNode',
+    },
+  }}
+/>
+
+### Tooltip.Trigger
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to trigger element',
+      type: 'React.Ref<HTMLElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (open/closed). Tooltip shows on hover and focus.
+
+### Tooltip.Content
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    forceMount: {
+      description: 'Keep in DOM when closed (for animations)',
+      type: 'boolean',
+      default: 'false',
+    },
+    onEscapeKeyDown: {
+      description: 'Called when Escape is pressed',
+      type: '(event: KeyboardEvent) => void',
+    },
+    onPointerDownOutside: {
+      description: 'Called when pointer down occurs outside',
+      type: '(event: Event) => void',
+    },
+    ref: {
+      description: 'Forwarded to content element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (open/closed). Renders with `role="tooltip"`, `id` for `aria-describedby` on trigger.
+
+## Accessibility
+
+### Keyboard
+
+- **Escape** — Closes the tooltip
+- **Tab** / **Shift+Tab** — Move focus; tooltip shows on focus, hides on blur
+- **Enter** / **Space** — N/A (tooltip is not activated by these on trigger)
+
+### Focus
+
+- Tooltip shows when trigger receives focus
+- Tooltip hides when trigger loses focus
+- Focus does not move into tooltip content (tooltips are non-interactive)
+
+### Screen Reader
+
+- Content: `role="tooltip"`
+- Trigger: `aria-describedby` points to content id
+- Accessible name/description comes from tooltip content
+- Ensure tooltip content is concise and descriptive
+
+### Consumer Responsibilities
+
+You must provide:
+
+- Visible tooltip styling (background, padding, border, etc.)
+- Positioning (CSS, Popper, Floating UI)
+- `prefers-reduced-motion` handling if desired (disable or shorten delay)
+
+## Examples
+
+### Installation
+
+<Steps>
+  <Step>Install the package: ```bash pnpm add @headless-primitives/core react react-dom ```</Step>
+  <Step>Import and use: ```tsx import { Tooltip } from '@headless-primitives/core'; ```</Step>
+</Steps>
+
+### Basic
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    Basic tooltip with hover/focus trigger.
+  </Tab>
+  <Tab value="Code">
+    ```tsx
+    import { Tooltip } from '@headless-primitives/core';
+
+    <Tooltip.Provider>
+      <Tooltip.Root>
+        <Tooltip.Trigger>Hover me</Tooltip.Trigger>
+        <Tooltip.Content>Tooltip text</Tooltip.Content>
+      </Tooltip.Root>
+    </Tooltip.Provider>
+    ```
+  </Tab>
+</Tabs>
+
+### Without Provider
+
+Provider is optional. Without it, default delay (700ms) and skip delay (300ms) are used:
+
+```tsx
+<Tooltip.Root>
+  <Tooltip.Trigger>Hover me</Tooltip.Trigger>
+  <Tooltip.Content>Tooltip text</Tooltip.Content>
+</Tooltip.Root>
+```
+
+### Custom Delay
+
+```tsx
+<Tooltip.Root delayDuration={1000}>
+  <Tooltip.Trigger>Hover me</Tooltip.Trigger>
+  <Tooltip.Content>Shows after 1 second</Tooltip.Content>
+</Tooltip.Root>
+```
+
+### Controlled
+
+```tsx
+const [open, setOpen] = useState(false);
+
+<Tooltip.Root open={open} onOpenChange={setOpen}>
+  <Tooltip.Trigger>Click to toggle</Tooltip.Trigger>
+  <Tooltip.Content>Controlled tooltip</Tooltip.Content>
+</Tooltip.Root>
+```
+
+### Styling with data-state
+
+```css
+[data-state="open"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+[data-state="closed"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+```
+
+## Edge Cases
+
+- **forceMount:** When true, Content stays in DOM when closed. Use `aria-hidden` and `hidden` for accessibility.
+- **Provider:** Use when you have multiple tooltips and want skip-delay behavior (moving from one trigger to another shows the next tooltip quickly).
+- **Positioning:** This library is headless. Use CSS (absolute/fixed), Popper, or Floating UI for positioning.
+- **disableHoverableContent:** Radix supports this to prevent tooltip from staying open when hovering over content. This headless implementation does not include it; add custom logic if needed.
+- **Mobile:** Tooltips triggered by focus work on mobile; hover-only tooltips may not. Consider touch-friendly alternatives for critical info.

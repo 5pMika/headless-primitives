@@ -1,0 +1,249 @@
+---
+title: Popover
+description: A headless non-modal popover primitive for overlay content
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Popover
+
+## Overview
+
+Popover is a headless compound primitive for non-modal overlay content. It matches Radix UI's API: Root, Trigger, Anchor, Portal, Content, and Close. Non-modal by default; focus is not trapped.
+
+**Anatomy:** Root → Trigger, Portal → Content (Close). Optional Anchor for positioning reference.
+
+## API
+
+### Popover.Root
+
+<TypeTable
+  type={{
+    open: {
+      description: 'Controlled open state',
+      type: 'boolean',
+    },
+    defaultOpen: {
+      description: 'Uncontrolled initial open state. Ignored when open is provided.',
+      type: 'boolean',
+      default: 'false',
+    },
+    onOpenChange: {
+      description: 'Called when open state changes',
+      type: '(open: boolean) => void',
+    },
+    modal: {
+      description: 'When true, traps focus. Default: false. Non-modal by default.',
+      type: 'boolean',
+      default: 'false',
+    },
+    children: {
+      description: 'Popover parts',
+      type: 'React.ReactNode',
+    },
+  }}
+/>
+
+### Popover.Trigger
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to trigger element',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (open/closed).
+
+### Popover.Anchor
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to anchor element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Optional. Used as positioning reference when not using Trigger.
+
+### Popover.Portal
+
+<TypeTable
+  type={{
+    container: {
+      description: 'DOM node to render portal into. Default: document.body',
+      type: 'HTMLElement',
+    },
+    children: {
+      description: 'Content',
+      type: 'React.ReactNode',
+    },
+  }}
+/>
+
+### Popover.Content
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    forceMount: {
+      description: 'Keep in DOM when closed (for animations)',
+      type: 'boolean',
+      default: 'false',
+    },
+    onEscapeKeyDown: {
+      description: 'Called when Escape is pressed',
+      type: '(event: KeyboardEvent) => void',
+    },
+    onPointerDownOutside: {
+      description: 'Called when pointer down occurs outside',
+      type: '(event: Event) => void',
+    },
+    onInteractOutside: {
+      description: 'Called when interaction occurs outside',
+      type: '(event: Event) => void',
+    },
+    ref: {
+      description: 'Forwarded to content element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (open/closed).
+
+### Popover.Close
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to close button element',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+Closes the popover on click.
+
+## Accessibility
+
+### Keyboard
+
+- **Escape** — Closes the popover
+- **Enter** / **Space** — Activate Trigger and Close
+- **Tab** / **Shift+Tab** — Move focus (not trapped when modal=false)
+
+### Focus
+
+- Focus moves to first focusable element when popover opens (when modal)
+- Focus returns to trigger when popover closes
+- Non-modal: focus is not trapped; user can tab outside
+
+### Screen Reader
+
+- Content: `role="dialog"` when modal, or appropriate role for non-modal
+- `data-state` for open/closed
+- Accessible name via `aria-label` or `aria-labelledby`
+
+### Consumer Responsibilities
+
+You must provide:
+
+- Visible focus indicators
+- Positioning (CSS, Popper, Floating UI, etc.)
+- Content styling
+
+## Examples
+
+### Installation
+
+<Steps>
+  <Step>Install the package: ```bash pnpm add @headless-primitives/core react react-dom ```</Step>
+  <Step>Import and use: ```tsx import { Popover } from '@headless-primitives/core'; ```</Step>
+</Steps>
+
+### Basic
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    Basic non-modal popover with trigger and content.
+  </Tab>
+  <Tab value="Code">
+    ```tsx
+    import { Popover } from '@headless-primitives/core';
+
+    <Popover.Root>
+      <Popover.Trigger>Open popover</Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content>
+          <p>Popover content here.</p>
+          <Popover.Close>Close</Popover.Close>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
+    ```
+  </Tab>
+</Tabs>
+
+### Controlled
+
+```tsx
+const [open, setOpen] = useState(false);
+
+<Popover.Root open={open} onOpenChange={setOpen}>
+  <Popover.Trigger>Open</Popover.Trigger>
+  <Popover.Portal>
+    <Popover.Content>
+      <p>Controlled popover.</p>
+      <Popover.Close>Close</Popover.Close>
+    </Popover.Content>
+  </Popover.Portal>
+</Popover.Root>
+```
+
+### Styling with data-state
+
+```css
+[data-state="open"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+[data-state="closed"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+```
+
+## Edge Cases
+
+- **forceMount:** When true, Content stays in DOM when closed. Use `aria-hidden` and `hidden` for accessibility.
+- **modal:** Set to true for focus trap; default is false for non-blocking overlays.
+- **Positioning:** This library is headless. Use CSS (absolute/fixed), Popper, or Floating UI for positioning.
+- **Outside click:** Content closes on outside pointer down by default; Escape also closes.

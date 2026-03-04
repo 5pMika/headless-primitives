@@ -1,0 +1,171 @@
+---
+title: Switch
+description: A headless switch/toggle primitive with role="switch" and aria-checked
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Switch
+
+## Overview
+
+Switch is a headless single-component primitive for on/off toggles. It matches Radix UI's API with `checked`, `defaultChecked`, `onCheckedChange`, and supports form integration via `name` and `value`.
+
+**Anatomy:** Single component (no compound parts). Renders a button with `role="switch"` and `aria-checked`.
+
+## API
+
+### Switch
+
+<TypeTable
+  type={{
+    checked: {
+      description: 'Controlled checked state',
+      type: 'boolean',
+    },
+    defaultChecked: {
+      description: 'Uncontrolled initial checked state. Ignored when checked is provided.',
+      type: 'boolean',
+      default: 'false',
+    },
+    onCheckedChange: {
+      description: 'Called when checked state changes',
+      type: '(checked: boolean) => void',
+    },
+    disabled: {
+      description: 'Disables the switch',
+      type: 'boolean',
+      default: 'false',
+    },
+    required: {
+      description: 'Marks as required for form validation',
+      type: 'boolean',
+    },
+    name: {
+      description: 'Form field name for submission',
+      type: 'string',
+    },
+    value: {
+      description: 'Form field value when checked. Default: "on".',
+      type: 'string',
+      default: '"on"',
+    },
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to root element',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (checked/unchecked), `data-disabled`.
+
+## Accessibility
+
+### Keyboard
+
+- **Enter** / **Space** — Toggle the switch
+- **Tab** / **Shift+Tab** — Move focus in/out
+
+### Focus
+
+- Switch is focusable when not disabled
+- Native button behavior
+
+### Screen Reader
+
+- `role="switch"`
+- `aria-checked` (true/false)
+- `aria-disabled` when disabled
+- Accessible name from visible text, `aria-label`, or `aria-labelledby`
+
+### Consumer Responsibilities
+
+You must provide:
+
+- Visible focus indicators
+- Visual representation of checked/unchecked (e.g. track + thumb)
+- Minimum target size (44x44px recommended)
+
+## Examples
+
+### Installation
+
+<Steps>
+  <Step>Install the package: ```bash pnpm add @headless-primitives/core react react-dom ```</Step>
+  <Step>Import and use: ```tsx import { Switch } from '@headless-primitives/core'; ```</Step>
+</Steps>
+
+### Basic
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    Basic switch with unchecked/checked states.
+  </Tab>
+  <Tab value="Code">
+    ```tsx
+    import { Switch } from '@headless-primitives/core';
+
+    <Switch aria-label="Enable notifications" />
+    ```
+  </Tab>
+</Tabs>
+
+### Controlled
+
+```tsx
+const [checked, setChecked] = useState(false);
+
+<Switch
+  checked={checked}
+  onCheckedChange={setChecked}
+  aria-label="Enable dark mode"
+/>
+```
+
+### With Label
+
+```tsx
+<label>
+  <Switch defaultChecked aria-label="Enable feature" />
+  <span>Enable feature</span>
+</label>
+```
+
+### Form Integration
+
+```tsx
+<form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.currentTarget); console.log(fd.get('notify')); }}>
+  <Switch name="notify" value="yes" defaultChecked aria-label="Notify me" />
+  <button type="submit">Submit</button>
+</form>
+```
+
+### Styling with data-state
+
+```css
+[data-state="checked"] {
+  background: blue;
+}
+
+[data-state="unchecked"] {
+  background: gray;
+}
+
+[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+```
+
+## Edge Cases
+
+- **asChild:** When true, merges props onto single child. Child must accept ref and button props.
+- **Form submission:** When `name` is set, the switch submits its `value` when checked (or nothing when unchecked). Use a hidden input if you need to always submit a value.
+- **required:** `aria-required` is set; form validation behavior depends on your form library.

@@ -1,5 +1,22 @@
 {
   "title": "Primitives",
   "description": "Headless UI primitives",
-  "pages": ["index", "button", "accordion", "file-trigger", "form", "toast"]
+  "pages": [
+    "index",
+    "button",
+    "accordion",
+    "file-trigger",
+    "form",
+    "toast",
+    "dialog",
+    "popover",
+    "dropdown-menu",
+    "tabs",
+    "switch",
+    "checkbox",
+    "select",
+    "tooltip",
+    "collapsible",
+    "avatar"
+  ]
 }

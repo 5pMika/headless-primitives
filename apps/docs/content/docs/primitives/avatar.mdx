@@ -1,0 +1,206 @@
+---
+title: Avatar
+description: A headless avatar primitive with image and fallback support
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Avatar
+
+## Overview
+
+Avatar is a headless compound primitive for user avatars. It matches Radix UI's API: Root, Image, and Fallback. Supports image loading states and fallback when the image fails or is loading.
+
+**Anatomy:** Root → Image (optional), Fallback. Root has `role="img"`; Image and Fallback are mutually exclusive in visibility (image shows when loaded, fallback when not).
+
+## API
+
+### Avatar.Root
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to root element',
+      type: 'React.Ref<HTMLSpanElement>',
+    },
+  }}
+/>
+
+Renders with `role="img"`. Consumer must provide `aria-label` for accessible name.
+
+### Avatar.Image
+
+<TypeTable
+  type={{
+    src: {
+      description: 'Image source URL',
+      type: 'string',
+    },
+    alt: {
+      description: 'Alt text for the image (recommended for accessibility)',
+      type: 'string',
+    },
+    onLoadingStatusChange: {
+      description: 'Called when loading status changes: "loading" | "loaded" | "error"',
+      type: '(status: "loading" | "loaded" | "error") => void',
+    },
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to img element',
+      type: 'React.Ref<HTMLImageElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (loading/loaded/error). When loaded, image is visible; when loading or error, fallback is shown.
+
+### Avatar.Fallback
+
+<TypeTable
+  type={{
+    delayMs: {
+      description: 'Delay before showing fallback (avoids flash for fast loads). Default: 0.',
+      type: 'number',
+      default: '0',
+    },
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to fallback element',
+      type: 'React.Ref<HTMLSpanElement>',
+    },
+  }}
+/>
+
+Shown when image is loading, has error, or not provided. Data attributes: `data-state`.
+
+## Accessibility
+
+### Keyboard
+
+- Avatar is not interactive by default; no keyboard interaction.
+- If used as a link or button, ensure it is focusable and has appropriate role.
+
+### Focus
+
+- Avatar root is not focusable unless it wraps an interactive element (e.g. `asChild` with a button).
+
+### Screen Reader
+
+- Root: `role="img"`
+- **Required:** Provide `aria-label` on Root for accessible name (e.g. "User avatar" or "John Doe").
+- Image: Use `alt` for decorative images (empty string) or descriptive alt for meaningful images.
+- Fallback: Typically initials or icon; ensure Root has `aria-label` since fallback may not be descriptive alone.
+
+### Consumer Responsibilities
+
+You must provide:
+
+- `aria-label` on Root (e.g. "User avatar" or the user's name)
+- Image `alt` attribute (empty for decorative: `alt=""`)
+- Sizing and styling (this library is headless)
+
+## Examples
+
+### Installation
+
+<Steps>
+  <Step>Install the package: ```bash pnpm add @headless-primitives/core react react-dom ```</Step>
+  <Step>Import and use: ```tsx import { Avatar } from '@headless-primitives/core'; ```</Step>
+</Steps>
+
+### Basic
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    Basic avatar with image and fallback.
+  </Tab>
+  <Tab value="Code">
+    ```tsx
+    import { Avatar } from '@headless-primitives/core';
+
+    <Avatar.Root aria-label="User avatar">
+      <Avatar.Image src="/user.jpg" alt="" />
+      <Avatar.Fallback>JD</Avatar.Fallback>
+    </Avatar.Root>
+    ```
+  </Tab>
+</Tabs>
+
+### Fallback Only (No Image)
+
+```tsx
+<Avatar.Root aria-label="User avatar">
+  <Avatar.Fallback>AB</Avatar.Fallback>
+</Avatar.Root>
+```
+
+### With Delay (Avoid Flash)
+
+When images load quickly, delay showing fallback to avoid a brief flash:
+
+```tsx
+<Avatar.Root aria-label="User avatar">
+  <Avatar.Image src="/user.jpg" alt="" />
+  <Avatar.Fallback delayMs={600}>JD</Avatar.Fallback>
+</Avatar.Root>
+```
+
+### Loading Status
+
+```tsx
+<Avatar.Root aria-label="User avatar">
+  <Avatar.Image
+    src="/user.jpg"
+    alt=""
+    onLoadingStatusChange={(status) => console.log(status)}
+  />
+  <Avatar.Fallback>JD</Avatar.Fallback>
+</Avatar.Root>
+```
+
+### Styling with data-state
+
+```css
+[data-state="loaded"] {
+  display: block;
+}
+
+[data-state="loading"],
+[data-state="error"] {
+  display: none;
+}
+
+/* Fallback visible when image not loaded */
+.avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: gray;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+```
+
+## Edge Cases
+
+- **aria-label:** Always provide `aria-label` on Root. Screen readers need an accessible name for `role="img"`.
+- **delayMs:** Use when images typically load fast to avoid fallback flash. For slow networks, fallback appears after delay.
+- **Image error:** When image fails to load, fallback is shown. Ensure fallback has meaningful content (e.g. initials).
+- **No Image:** When Image is omitted, Fallback is always shown.
+- **asChild:** When true on Root, merges props onto single child. Child must accept ref and span props. Ensure `role="img"` and `aria-label` are preserved.

@@ -1,0 +1,251 @@
+---
+title: Tabs
+description: A headless tabs primitive with roving tabindex and full keyboard navigation
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Tabs
+
+## Overview
+
+Tabs is a headless compound primitive for tabbed interfaces. It matches Radix UI's API: Root, List, Trigger, and Content. Supports roving tabindex, arrow key navigation, and activation modes (automatic vs manual).
+
+**Anatomy:** Root → List → Trigger(s), and Root → Content (per value).
+
+## API
+
+### Tabs.Root
+
+<TypeTable
+  type={{
+    value: {
+      description: 'Controlled selected tab value',
+      type: 'string',
+    },
+    defaultValue: {
+      description: 'Uncontrolled initial value. Ignored when value is provided.',
+      type: 'string',
+    },
+    onValueChange: {
+      description: 'Called when selected tab changes',
+      type: '(value: string) => void',
+    },
+    orientation: {
+      description: 'Layout direction for keyboard navigation',
+      type: '"horizontal" | "vertical"',
+      default: '"horizontal"',
+    },
+    dir: {
+      description: 'Text direction for RTL support',
+      type: '"ltr" | "rtl"',
+      default: '"ltr"',
+    },
+    activationMode: {
+      description: '"automatic" = select on focus; "manual" = select on Enter/Space',
+      type: '"automatic" | "manual"',
+      default: '"automatic"',
+    },
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to root element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-orientation`, `data-direction`.
+
+### Tabs.List
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to list element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Renders with `role="tablist"`. Data attributes: `data-orientation`, `data-direction`.
+
+### Tabs.Trigger
+
+<TypeTable
+  type={{
+    value: {
+      description: 'Unique string identifier for this tab (required)',
+      type: 'string',
+    },
+    disabled: {
+      description: 'Disables this trigger',
+      type: 'boolean',
+      default: 'false',
+    },
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to trigger element',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (active/inactive), `data-disabled`, `data-orientation`, `data-direction`.
+
+### Tabs.Content
+
+<TypeTable
+  type={{
+    value: {
+      description: 'Tab value this content belongs to (required)',
+      type: 'string',
+    },
+    forceMount: {
+      description: 'Keep in DOM when inactive (for animations)',
+      type: 'boolean',
+      default: 'false',
+    },
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to content element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (active/inactive), `data-orientation`, `data-direction`.
+
+## Accessibility
+
+### Keyboard
+
+- **Arrow Right** / **Arrow Down** — Focus next tab (horizontal/vertical)
+- **Arrow Left** / **Arrow Up** — Focus previous tab
+- **Home** — Focus first tab
+- **End** — Focus last tab
+- **Enter** / **Space** — Select tab (when activationMode="manual")
+- **Tab** / **Shift+Tab** — Move focus in/out of tablist (roving tabindex)
+
+### Focus
+
+- Roving tabindex: only the focused trigger has `tabIndex={0}`; others have `tabIndex={-1}`
+- activationMode="automatic": selecting happens on focus
+- activationMode="manual": selecting happens on Enter/Space
+
+### Screen Reader
+
+- List: `role="tablist"`; Triggers: `role="tab"`; Content: `role="tabpanel"`
+- `aria-selected`, `aria-controls`, `aria-labelledby` for linking
+
+### Consumer Responsibilities
+
+You must provide:
+
+- Visible focus indicators
+- Minimum target size (44x44px recommended)
+- Color contrast
+
+## Examples
+
+### Installation
+
+<Steps>
+  <Step>Install the package: ```bash pnpm add @headless-primitives/core react react-dom ```</Step>
+  <Step>Import and use: ```tsx import { Tabs } from '@headless-primitives/core'; ```</Step>
+</Steps>
+
+### Basic
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    Basic horizontal tabs with automatic activation.
+  </Tab>
+  <Tab value="Code">
+    ```tsx
+    import { Tabs } from '@headless-primitives/core';
+
+    <Tabs.Root defaultValue="tab1">
+      <Tabs.List>
+        <Tabs.Trigger value="tab1">Tab 1</Tabs.Trigger>
+        <Tabs.Trigger value="tab2">Tab 2</Tabs.Trigger>
+        <Tabs.Trigger value="tab3">Tab 3</Tabs.Trigger>
+      </Tabs.List>
+      <Tabs.Content value="tab1">Content 1</Tabs.Content>
+      <Tabs.Content value="tab2">Content 2</Tabs.Content>
+      <Tabs.Content value="tab3">Content 3</Tabs.Content>
+    </Tabs.Root>
+    ```
+  </Tab>
+</Tabs>
+
+### Controlled
+
+```tsx
+const [value, setValue] = useState('tab1');
+
+<Tabs.Root value={value} onValueChange={setValue}>
+  <Tabs.List>
+    <Tabs.Trigger value="tab1">Tab 1</Tabs.Trigger>
+    <Tabs.Trigger value="tab2">Tab 2</Tabs.Trigger>
+  </Tabs.List>
+  <Tabs.Content value="tab1">Content 1</Tabs.Content>
+  <Tabs.Content value="tab2">Content 2</Tabs.Content>
+</Tabs.Root>
+```
+
+### Vertical
+
+```tsx
+<Tabs.Root defaultValue="tab1" orientation="vertical">
+  <Tabs.List>
+    <Tabs.Trigger value="tab1">Tab 1</Tabs.Trigger>
+    <Tabs.Trigger value="tab2">Tab 2</Tabs.Trigger>
+  </Tabs.List>
+  <Tabs.Content value="tab1">Content 1</Tabs.Content>
+  <Tabs.Content value="tab2">Content 2</Tabs.Content>
+</Tabs.Root>
+```
+
+### Styling with data-state
+
+```css
+[data-state="active"] {
+  border-bottom: 2px solid blue;
+}
+
+[data-state="inactive"] {
+  opacity: 0.7;
+}
+
+[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+```
+
+## Edge Cases
+
+- **forceMount:** When true, Content stays in DOM when inactive. Use `aria-hidden` and `hidden` for accessibility.
+- **activationMode:** "automatic" selects on focus; "manual" requires Enter/Space to select.
+- **orientation:** Use "vertical" for side tabs; arrow keys switch to Up/Down.
+- **dir="rtl":** Full RTL support; arrow keys respect direction.
+- **Disabled trigger:** Not focusable; skipped in keyboard navigation.

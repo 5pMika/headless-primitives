@@ -1,0 +1,294 @@
+---
+title: Dialog
+description: A headless modal dialog primitive with focus trap, portal, and WCAG 2.2 AA compliance
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Dialog
+
+## Overview
+
+Dialog is a headless compound primitive for modal dialogs. It matches Radix UI's API: Root, Trigger, Portal, Overlay, Content, Title, Description, and Close. Supports focus trap, portal rendering, and full WAI-ARIA patterns.
+
+**Anatomy:** Root → Trigger, Portal → Overlay + Content (Title, Description, Close). The overlay and content are rendered in a portal by default.
+
+## API
+
+### Dialog.Root
+
+<TypeTable
+  type={{
+    open: {
+      description: 'Controlled open state',
+      type: 'boolean',
+    },
+    defaultOpen: {
+      description: 'Uncontrolled initial open state. Ignored when open is provided.',
+      type: 'boolean',
+      default: 'false',
+    },
+    onOpenChange: {
+      description: 'Called when open state changes',
+      type: '(open: boolean) => void',
+    },
+    modal: {
+      description: 'When true, traps focus and blocks interaction outside. Default: true.',
+      type: 'boolean',
+      default: 'true',
+    },
+    children: {
+      description: 'Dialog parts',
+      type: 'React.ReactNode',
+    },
+  }}
+/>
+
+### Dialog.Trigger
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to trigger element',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (open/closed).
+
+### Dialog.Portal
+
+<TypeTable
+  type={{
+    container: {
+      description: 'DOM node to render portal into. Default: document.body',
+      type: 'HTMLElement',
+    },
+    children: {
+      description: 'Overlay and Content',
+      type: 'React.ReactNode',
+    },
+  }}
+/>
+
+### Dialog.Overlay
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    forceMount: {
+      description: 'Keep in DOM when closed (for animations)',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to overlay element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (open/closed).
+
+### Dialog.Content
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    forceMount: {
+      description: 'Keep in DOM when closed (for animations)',
+      type: 'boolean',
+      default: 'false',
+    },
+    onEscapeKeyDown: {
+      description: 'Called when Escape is pressed',
+      type: '(event: KeyboardEvent) => void',
+    },
+    onPointerDownOutside: {
+      description: 'Called when pointer down occurs outside',
+      type: '(event: Event) => void',
+    },
+    onInteractOutside: {
+      description: 'Called when interaction occurs outside',
+      type: '(event: Event) => void',
+    },
+    ref: {
+      description: 'Forwarded to content element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (open/closed).
+
+### Dialog.Title
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to title element',
+      type: 'React.Ref<HTMLHeadingElement>',
+    },
+  }}
+/>
+
+Renders with `id` for `aria-labelledby` on Content.
+
+### Dialog.Description
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to description element',
+      type: 'React.Ref<HTMLParagraphElement>',
+    },
+  }}
+/>
+
+Renders with `id` for `aria-describedby` on Content.
+
+### Dialog.Close
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to close button element',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+Closes the dialog on click. Data attributes: `data-state`.
+
+## Accessibility
+
+### Keyboard
+
+- **Escape** — Closes the dialog
+- **Tab** / **Shift+Tab** — Trapped within dialog when modal
+- **Enter** / **Space** — Activate buttons (Trigger, Close)
+
+### Focus
+
+- Focus moves to first focusable element when dialog opens
+- Focus is trapped inside the dialog when modal
+- Focus returns to trigger when dialog closes
+- Portal renders content outside DOM hierarchy for proper stacking
+
+### Screen Reader
+
+- Content: `role="dialog"`, `aria-modal`, `aria-labelledby`, `aria-describedby`
+- Title and Description provide accessible name and description
+- `data-state` for open/closed
+
+### Consumer Responsibilities
+
+You must provide:
+
+- Visible focus indicators
+- Overlay styling (e.g. backdrop)
+- Content positioning (this library is headless; no layout/positioning)
+
+## Examples
+
+### Installation
+
+<Steps>
+  <Step>Install the package: ```bash pnpm add @headless-primitives/core react react-dom ```</Step>
+  <Step>Import and use: ```tsx import { Dialog } from '@headless-primitives/core'; ```</Step>
+</Steps>
+
+### Basic
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    Basic modal dialog with trigger, overlay, content, title, description, and close button.
+  </Tab>
+  <Tab value="Code">
+    ```tsx
+    import { Dialog } from '@headless-primitives/core';
+
+    <Dialog.Root>
+      <Dialog.Trigger>Open dialog</Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay />
+        <Dialog.Content>
+          <Dialog.Title>Dialog title</Dialog.Title>
+          <Dialog.Description>Dialog description text.</Dialog.Description>
+          <Dialog.Close>Close</Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+    ```
+  </Tab>
+</Tabs>
+
+### Controlled
+
+```tsx
+const [open, setOpen] = useState(false);
+
+<Dialog.Root open={open} onOpenChange={setOpen}>
+  <Dialog.Trigger>Open</Dialog.Trigger>
+  <Dialog.Portal>
+    <Dialog.Overlay />
+    <Dialog.Content>
+      <Dialog.Title>Controlled</Dialog.Title>
+      <Dialog.Description>State controlled externally.</Dialog.Description>
+      <Dialog.Close>Close</Dialog.Close>
+    </Dialog.Content>
+  </Dialog.Portal>
+</Dialog.Root>
+```
+
+### Styling with data-state
+
+```css
+[data-state="open"] {
+  opacity: 1;
+}
+
+[data-state="closed"] {
+  opacity: 0;
+  pointer-events: none;
+}
+```
+
+## Edge Cases
+
+- **forceMount:** When true, Overlay and Content stay in DOM when closed. Use `aria-hidden` and `hidden` for accessibility; useful for CSS/JS animations.
+- **modal:** When false, focus is not trapped; user can interact outside. Use for non-blocking overlays.
+- **Portal:** Content renders in portal by default. Ensure overlay and content are positioned correctly (e.g. fixed, full viewport).
+- **Nested dialogs:** Focus restoration order is handled; nested dialogs close in reverse order.

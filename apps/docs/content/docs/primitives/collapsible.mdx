@@ -1,0 +1,215 @@
+---
+title: Collapsible
+description: A headless collapsible primitive for expand/collapse content (single panel)
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Collapsible
+
+## Overview
+
+Collapsible is a headless compound primitive for a single expand/collapse panel. It matches Radix UI's API: Root, Trigger, and Content. Simpler than Accordion (one panel only); supports `aria-expanded` and `aria-controls`.
+
+**Anatomy:** Root → Trigger, Content. One trigger controls one content panel.
+
+## API
+
+### Collapsible.Root
+
+<TypeTable
+  type={{
+    open: {
+      description: 'Controlled open state',
+      type: 'boolean',
+    },
+    defaultOpen: {
+      description: 'Uncontrolled initial open state. Ignored when open is provided.',
+      type: 'boolean',
+      default: 'false',
+    },
+    onOpenChange: {
+      description: 'Called when open state changes',
+      type: '(open: boolean) => void',
+    },
+    disabled: {
+      description: 'Disables the collapsible (trigger cannot toggle)',
+      type: 'boolean',
+      default: 'false',
+    },
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to root element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+### Collapsible.Trigger
+
+<TypeTable
+  type={{
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to trigger element',
+      type: 'React.Ref<HTMLButtonElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (open/closed), `data-disabled`. Renders with `aria-expanded`, `aria-controls`.
+
+### Collapsible.Content
+
+<TypeTable
+  type={{
+    forceMount: {
+      description: 'Keep in DOM when closed (for animations)',
+      type: 'boolean',
+      default: 'false',
+    },
+    asChild: {
+      description: 'Merge props onto single child via cloneElement',
+      type: 'boolean',
+      default: 'false',
+    },
+    ref: {
+      description: 'Forwarded to content element',
+      type: 'React.Ref<HTMLDivElement>',
+    },
+  }}
+/>
+
+Data attributes: `data-state` (open/closed), `data-disabled`. Renders with `id` for `aria-controls` on trigger.
+
+## Accessibility
+
+### Keyboard
+
+- **Enter** / **Space** — Toggle the collapsible (trigger is a button)
+- **Tab** / **Shift+Tab** — Move focus in/out
+
+### Focus
+
+- Trigger is focusable when not disabled
+- Content does not receive focus (it is not interactive)
+
+### Screen Reader
+
+- Trigger: `aria-expanded`, `aria-controls` (content id)
+- Content: `id` for `aria-controls`; `aria-hidden` when closed (when forceMount)
+- Accessible name from visible text, `aria-label`, or `aria-labelledby`
+
+### Consumer Responsibilities
+
+You must provide:
+
+- Visible focus indicators
+- Visual representation of open/closed (e.g. chevron rotation)
+- Content height animation if desired (CSS or JS)
+
+## Examples
+
+### Installation
+
+<Steps>
+  <Step>Install the package: ```bash pnpm add @headless-primitives/core react react-dom ```</Step>
+  <Step>Import and use: ```tsx import { Collapsible } from '@headless-primitives/core'; ```</Step>
+</Steps>
+
+### Basic
+
+<Tabs items={['Preview', 'Code']}>
+  <Tab value="Preview">
+    Basic collapsible with trigger and content.
+  </Tab>
+  <Tab value="Code">
+    ```tsx
+    import { Collapsible } from '@headless-primitives/core';
+
+    <Collapsible.Root>
+      <Collapsible.Trigger>Toggle</Collapsible.Trigger>
+      <Collapsible.Content>
+        <p>Collapsible content here.</p>
+      </Collapsible.Content>
+    </Collapsible.Root>
+    ```
+  </Tab>
+</Tabs>
+
+### Default Open
+
+```tsx
+<Collapsible.Root defaultOpen>
+  <Collapsible.Trigger>Toggle</Collapsible.Trigger>
+  <Collapsible.Content>
+    <p>Starts expanded.</p>
+  </Collapsible.Content>
+</Collapsible.Root>
+```
+
+### Controlled
+
+```tsx
+const [open, setOpen] = useState(false);
+
+<Collapsible.Root open={open} onOpenChange={setOpen}>
+  <Collapsible.Trigger>{open ? 'Collapse' : 'Expand'}</Collapsible.Trigger>
+  <Collapsible.Content>
+    <p>Controlled content.</p>
+  </Collapsible.Content>
+</Collapsible.Root>
+```
+
+### With forceMount (for animations)
+
+When using CSS/JS animations, keep content in DOM and animate height/opacity. Use controlled mode to sync `data-state`:
+
+```tsx
+const [open, setOpen] = useState(false);
+
+<Collapsible.Root open={open} onOpenChange={setOpen}>
+  <Collapsible.Trigger>Toggle</Collapsible.Trigger>
+  <Collapsible.Content forceMount>
+    <div data-state={open ? 'open' : 'closed'} className="animate-collapse">
+      <p>Animated content.</p>
+    </div>
+  </Collapsible.Content>
+</Collapsible.Root>
+```
+
+Ensure `aria-hidden` and `hidden` are applied when closed for accessibility.
+
+### Styling with data-state
+
+```css
+[data-state="open"] {
+  display: block;
+}
+
+[data-state="closed"] {
+  display: none;
+}
+
+[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+```
+
+## Edge Cases
+
+- **forceMount:** When true, Content stays in DOM when closed. Use `aria-hidden` and `hidden` for accessibility; useful for CSS/JS height animations.
+- **disabled:** When true, trigger does not respond to click or keyboard; `aria-disabled` is set.
+- **vs Accordion:** Use Collapsible for a single panel; use Accordion for multiple panels with single/multiple open modes.
+- **asChild:** When true, merges props onto single child. Child must accept ref and appropriate element props.
